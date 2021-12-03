@@ -1,0 +1,1931 @@
+<!DOCTYPE html><html lang="zh">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>高等代数2：期末复习笔记 - 小闰的甜品站</title>
+
+<meta name="description" content="注意：这份笔记仅总结期中考试之后讲授的两章，前期的就不做了。另外，这份笔记至多只能起到提醒哪里很重要or哪个地方可以作何理解这样的作用，完全不能代替课本和你自己的笔记。那么我们开始吧。参考书目：《高等代数（第二版，下册）》 - 丘维声，清华大学出版社1 线性变换写在前面：线性变换有什么用？个人觉得线性变换是线性映...">
+<link rel="canonical" href="http://localhost:4000/2021/05/21/review_advanced_algebra_2.html"><link rel="alternate" type="application/rss+xml" title="小闰的甜品站" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Your Site Description
+" href="/">小闰的甜品站</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>高等代数2：期末复习笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/YHanchao/yhanchao.github.io/tree/master/_posts/2021-05-21-review_advanced_algebra_2.md">
+            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="高等代数2：期末复习笔记"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 05月21日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-05-21T00:00:00+08:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p><strong>注意</strong>：这份笔记仅总结期中考试之后讲授的两章，前期的就不做了。另外，这份笔记至多只能起到提醒哪里很重要or哪个地方可以作何理解这样的作用，<strong>完全不能</strong>代替课本和你自己的笔记。那么我们开始吧。</p>
+
+<p>参考书目：《高等代数（第二版，下册）》 - 丘维声，清华大学出版社</p>
+
+<hr />
+
+<h1 id="1-线性变换">1 线性变换</h1>
+
+<p><strong>写在前面</strong>：线性变换有什么用？个人觉得线性变换是线性映射的一种特殊形式，线性映射本身是非常强大的，以仅次于同构映射的条件，嫁接起了可能在形式上毫不相关的线性空间。</p>
+
+<p>如何去研究一个线性变换？</p>
+
+<ul>
+  <li>线性变换有什么运算——线性变换构成的一个线性空间（套娃？总之最开始就要明确<strong>线性变换本身也是有结构的！</strong>）</li>
+  <li>线性变换的结构（接续上文，但是有所启下）</li>
+  <li>线性变换的核与象——“核”这个概念多少会给人一种“消失了、不可逆、奇异”的印象，而“象”这个概念可以说顾名思义，展现出了“有所变化”的一些东西。而核与象本身作为线性子空间也可以具备一些不错的性质</li>
+  <li>线性变换的矩阵表示：也是线性变换与$\mathbb{R}^{n\times n}$之间的一种同构变换——进而，通过基变换能不能找到一些<strong>最简单</strong>的矩阵表示</li>
+</ul>
+
+<p>此外，线性变换这里我认为有着比较明显的<strong>数形结合</strong>的感觉，在这一章的介绍中，我们通过<strong>代数</strong>（形）的角度（请允许我这里这个说法并不是很好，起码不是很<em>形</em>）以及<strong>坐标</strong>（数）的角度来刻画研究线性变换以及线性空间。当然我们也用<strong>基</strong>作为桥梁把两个东西串在了一起。下面我试图先用<strong>代数</strong>的视角、再用<strong>坐标</strong>的方法来说明它的结构。只不过有个缺点，就是有的地方结构描述之间的关系还是蛮紧密的，有时候不用不行的话就暂且用一下</p>
+
+<h2 id="11-线性变换及运算">1.1 线性变换及运算</h2>
+
+<p>主要问题：线性变换是什么（什么样的映射是线性变换）？如何刻画线性变换？线性变换的结构与运算（其实应当说因为有了运算才有了进一步的结构，但是有了结构又让讨论运算变得更简单了）</p>
+
+<h3 id="111-线性变换的定义与刻画">1.1.1 线性变换的定义与刻画</h3>
+
+<p><strong>定义1（线性变换）</strong>：是个映射，满足线性性（不过因为是在同一个线性空间中的变换，所以不太用担心运算的继承啥的……）</p>
+
+<p>映射：
+\(\begin{align*}
+\mathcal{A}: V&amp;\to V\\
+\alpha&amp;\mapsto \mathcal{A}\alpha
+\end{align*}\)
+线性性：
+\(\begin{align*}
+\mathcal{A}(\alpha+\beta)=\mathcal{A}(\alpha)+\mathcal{A}(\beta)\quad\forall\alpha,\beta\in V\\
+\mathcal{A}(k\alpha)=k\mathcal{A}\alpha\quad\forall(\alpha)\in V,k\in P
+\end{align*}\)</p>
+
+<p><strong>刻画</strong>一个线性映射：<strong>基</strong>！！！！也就是说如果一组基在$\mathcal{A}$的变换下的向量已知了，那么这个线性变换也就是固定的了（因为任意一个向量都可以由这组基表示出来了……）。后面线性变换的矩阵表示也是在这一背景下提出的</p>
+
+<p>根据这些还可以联想到：$V=L(\varepsilon_1,\varepsilon_2,\ldots,\varepsilon_n)$，那么$\text{Im}V=L(\mathcal{A}\varepsilon_1,\mathcal{A}\varepsilon_2,\ldots,\mathcal{A}\varepsilon_n)$，那么$V$和$\text{Im}V$有什么联系？$\varepsilon_1,\varepsilon_2,\ldots,\varepsilon_n$不线性相关的话会出现什么情况？相应的矩阵会有怎样的性质……</p>
+
+<p>线性变换的存在性：<em>其实这个是上面的一个较为直接的论断</em>。在n维线性空间$V$中取定一组基$\varepsilon_1,\varepsilon_2,\ldots,\varepsilon_n$，再任意从$V$中取定n个向量$\eta_1,\eta_2,\ldots,\eta_n$，那么令
+\(\begin{align*}
+\mathcal{A}:V&amp;\to V\\
+\alpha=\sum_{i=1}^nk_i\varepsilon_i&amp;\mapsto\sum_{i=1}^nk_i\eta_i
+\end{align*}\)
+则：$\mathcal{A}$是一个线性映射，而且$\mathcal{A}\varepsilon_i=\eta_i$，这一线性变换唯一（注：<strong>唯一</strong>如何刻画？只要两个线性映射对一组基映射出来的象都是一样的，那么这两个线性变换就是相同的，这也是根据前面<strong>用基来刻画线性映射</strong>的直接结论）</p>
+
+<h3 id="112-线性变换的运算与简单结构">1.1.2 线性变换的运算与简单结构</h3>
+
+<h4 id="1121-线性运算与简单的运算性质">1.1.2.1 线性运算与简单的运算性质</h4>
+
+<p>定义$\bar{V}=\text{Hom}(V,V)$为从$V$到$V$所有线性变换组成的<strong>集合</strong>，可以证明，这是一个<strong>线性空间</strong>（用的是V中的运算性质）——这表明<strong>线性变换</strong>本身也是具有一定结构的！可以在这个空间中继续做文章。既然是线性空间，所以肯定有加法和数乘的运算：</p>
+
+<p><strong>定义2（线性运算）</strong>
+\((\mathcal{A}+\mathcal{B})\alpha=\mathcal{A}\alpha+\mathcal{B}\alpha\\
+(k\mathcal{A})\alpha=k\mathcal{A}\alpha\\\)</p>
+
+<p>线性运算满足<strong>加法交换律、加法结合律</strong>以及数乘的<strong>分配律</strong></p>
+
+<h4 id="1122-乘法运算">1.1.2.2 乘法运算</h4>
+
+<p><strong>定义3（线性变换的乘法）</strong>：$(\mathcal{B}\mathcal{A})\alpha=\mathcal{B}(\mathcal{A}\alpha)$</p>
+
+<p>进而可以继续定义线性变换的<strong>整数指数幂</strong>，当然关于线性变换的多项式也就说得通了。</p>
+
+<h3 id="113-例题">1.1.3 例题</h3>
+
+<ol>
+  <li>判断下面所定义的$\mathbb{R}^3$上的变换是否是线性变换？（线性变换的定义）
+  \(\mathcal{A}\begin{bmatrix}
+  x_1\\
+  x_2\\
+  x_3\\
+  \end{bmatrix}=\begin{bmatrix}
+  x_1+x_2\\
+  x_1-x_2\\
+  x_3^2
+  \end{bmatrix}\)</li>
+  <li>把复数域$\mathbb{C}$分别看作实数域$\mathbb{R}$和复数域$\mathbb{C}$上的线性空间，令$\mathcal{A}(z)=\bar{z},\forall z\in \mathbb{C}$，试问：$\mathcal{A}$是不是$\mathbb{C}$上的线性变换？（线性变换的定义）</li>
+</ol>
+
+<hr />
+
+<h2 id="12-线性变换的核与象">1.2 线性变换的核与象</h2>
+
+<p>核与象这两个概念依然是在刻画线性变换的性质以及线性空间的一些结构。</p>
+
+<p><strong>定义1（核）</strong>：记$\mathcal{A}$是线性空间$V$上的线性变换，$\mathcal{A}$的核定义为$\text{Ker }\mathcal{A}={\alpha\in V:\mathcal{A}\alpha=0}$</p>
+
+<p><strong>定义2（象，值域）</strong>：$\text{Im }\mathcal{A}={\mathcal{A}\alpha:\alpha\in V}$</p>
+
+<p><strong>定义3（线性变换的秩）</strong>：$\text{rank }\mathcal{A}=\text{dim }(\text{Im }\mathcal{A})$</p>
+
+<p><strong>定义4（线性变换的零度）</strong>：即$\text{dim }(\text{Ker }\mathcal{A})$</p>
+
+<p>事实上，核与象均是原空间的子空间，所以<strong>当然可以用研究线性空间的方法来看待核与象</strong></p>
+
+<p>额外的一点提醒：别忘了秩的定义与维数的关系，需要的时候要记得灵活转换。秩由同构很方便地就能搞到矩阵上面，然后就跟维度又有挂上了钩</p>
+
+<p><strong>定理1</strong>：$\mathcal{A}$是单射当且仅当$\text{Ker }\mathcal{A}=0$，$\mathcal{A}$是满射当且仅当$\text{Im }\mathcal{A}=V$</p>
+
+<p>前半个命题的证明比较简单，只需把两边分别证了即可，具体证明留给读者（（。后半个命题实际上就是定义的直接应用。<strong>不过还是注意，这里又是一个对核与象的充要刻画</strong></p>
+
+<p><strong>定理2（核与象的维数关系）</strong>：若$V$是<strong>有限维</strong>的，则$\text{dim}(\text{Ker }\mathcal{A})+\text{dim}(\text{Im }\mathcal{A})=\text{dim }V$</p>
+
+<p>可以用基扩展定理来说明，这里能这么用是因为这个线性空间是有限维的，如果是无限维的话，个人认为首先需要明确这个“加法”和“等号”的含义究竟是什么，毕竟这里已经是两个无穷大的东西比较了，说不清楚。</p>
+
+<p><strong>定理3</strong>：若$V$是<strong>有限维的</strong>，则$\mathcal{A}$是单射当且仅当其是满射。</p>
+
+<p>这是定理1与定理2的推论。想在这里说的是，请注意<strong>定理1的证明过程中至始至终没有用到维数</strong>，所以说得不到单射当且仅当满射的结论。举一个明显的例子：设$V=R[x]$，$\mathcal{F}$为求不定积分变换（不含C，保证是一对一的映射），显然这是一个单射，但它并不是满射。</p>
+
+<p>一定要注意什么时候是<strong>有限维</strong>下的结论！</p>
+
+<p>（6月14日的补充，不改标号了，暂且插入一下ww）</p>
+
+<p><strong>一定不要觉得</strong>$\text{Im}\mathcal{A}+\text{Ker}\mathcal{A}=V$！举一个例子：设$V=\mathbb{P}<em>n[x]$，$\mathcal{D}$为多项式求导，则$\text{Im}\mathcal{D}=\mathbb{P}</em>{n-1}[x]$，$\text{Ker}\mathcal{D}=\mathbb{P}$，显然$\text{Im}\mathcal{D}+\text{Ker}\mathcal{D}\neq\mathbb{P}_n[x]$！</p>
+
+<p>当且仅当$\text{Ker}\mathcal{A}\cap\text{Im}\mathcal{A}=0$时上面的式子才能成立</p>
+
+<p>最后放两道我觉得很有意思的题目</p>
+
+<p><img src="https://yan-blog.oss-cn-beijing.aliyuncs.com/images/study/posts/%E4%B8%A4%E9%81%93%E6%9C%89%E6%84%8F%E6%80%9D%E7%9A%84%E9%A2%98.jpg" alt="两道有意思的题" /></p>
+
+<h2 id="13-线性变换的矩阵表示">1.3 线性变换的矩阵表示</h2>
+
+<h3 id="131-矩阵表示及其性质">1.3.1 矩阵表示及其性质</h3>
+
+<p><strong>定义1（线性变换的矩阵）</strong>：若矩阵$\mathbf{A}$满足$\mathcal{A}(\alpha_1,\alpha_2,\ldots,\alpha_n)=(\alpha_1,\alpha_2,\ldots,\alpha_n)\mathbf{A}$，则称$\mathbf{A}$是线性变换$\mathcal{A}$在基$\alpha_1,\alpha_2,\ldots,\alpha_n$下的矩阵</p>
+
+<p><strong>命题1</strong>：$\text{rank}\mathcal{A}=\text{rank}\mathbf{A}$</p>
+
+<p><strong>定理1</strong>：设$\alpha_1,\alpha_2,\ldots,\alpha_n$是数域$\mathbb{P}$上的$n$维线性空间的一组基，则有：该线性空间上这一组基下的线性变换构成的线性空间与$\mathbb{P}^{n\times n}$同构</p>
+
+<p>这个命题的证明就要按照<strong>同构的定义</strong>，考虑映射：</p>
+
+\[\begin{align*}
+\sigma : \bar{V} &amp;\to \mathbb{P}^{n\times n}\\
+\mathcal{A}&amp; \mapsto \mathbf{A}
+\end{align*}\]
+
+<p>即证$\sigma$是双射，满足一一对应。可以先说明每个线性变换有唯一矩阵与之对应，这个可以由线性变换的矩阵的定义+元素的唯一表出来证明；而矩阵与唯一线性变换相对应则可以用反证法，先设有两个变换与之对应，之后再说明两个变换是同一个变换，而这一步只需要说明基的变换相同。</p>
+
+<p>这里想稍微多说一点，如果设$W$是$V$的一个子空间，考虑将$V$映射到$W$的变换组成的空间$\text{Hom}(V,W)$，类似上面可以定义出这里矩阵的形式$\mathcal{B}((\alpha_1,\alpha_2,\ldots,\alpha_n))=(\alpha_1,\alpha_2,\ldots,\alpha_m)\mathbf{B}$，同理可以再论证这个时候$\text{Hom}(V,W)$与$\mathbb{P}^{m\times n}$同构</p>
+
+<p>说这个其实还是希望能够不要仅仅将目光局限在$V$到自身的变换，尽管刚刚上面那个$\mathbf{B}$完全可以看作是$\mathbf{A}$把最下面的$n-m$行删去得到的矩阵</p>
+
+<p><strong>定理2</strong>：
+\(\begin{align*}
+(\mathcal{AB})(\alpha_1,\alpha_2,\ldots,\alpha_n)&amp;=\mathcal{A}[(\alpha_1,\alpha_2,\ldots,\alpha_n)\mathbf{B}]\\
+&amp;=(\mathcal{A}\alpha_1,\mathcal{A}\alpha_2,\ldots,\mathcal{A}\alpha_n)\mathbf{B}\\
+&amp;=(\alpha_1,\alpha_2,\ldots,\alpha_n)\mathbf{AB}
+\end{align*}\)</p>
+
+<p>这个命题说明了$\sigma(\mathcal{AB})=\mathbf{AB}=\sigma(\mathcal{A})\sigma(\mathcal{B})$，也就是说可以乘法也在某种程度上有“同构”的性质（不过同构并不保证满足乘积的映射为双射。事实上这里牵扯到一个叫做“<strong>代数</strong>”的概念，不过课程不要求就不写了）</p>
+
+<p>顺着刚刚说的，还可以推出来$\mathcal{A}$可逆当且仅当$\mathbf{A}$可逆；$\mathcal{A}$是幂等变换则$\mathbf{A}$是幂等矩阵之类一大串结论，只不过这个只是上面这个结论的应用罢了。可以说这个定理揭示出来一些“更加深层”的东西出来！</p>
+
+<h3 id="132-坐标变换的性质">1.3.2 坐标变换的性质</h3>
+
+<p><strong>定理3（坐标变换）</strong>：设$\alpha$在基$\alpha_1,\alpha_2,\ldots,\alpha_n$下的坐标为$\mathbf{x}$，线性变换$\mathcal{A}$的矩阵为$\mathbf{A}$，则$\mathcal{A}\alpha$的坐标为$\mathbf{Ax}$</p>
+
+<h3 id="133-基变换下线性变换矩阵的关系">1.3.3 基变换下线性变换矩阵的关系</h3>
+
+<p><strong>定理4</strong>：设从基$\alpha_1,\alpha_2,\ldots,\alpha_n$到基$\beta_1\beta_2,\ldots,\beta_n$的过渡矩阵为$\mathbf{S}$，线性变换$\mathcal{A}$在两个基下的矩阵分别为$\mathbf{A}$、$\mathbf{B}$，则$B=S^{-1}AS$</p>
+
+<p><strong>定义5（相似矩阵）</strong>：$A$与$B$相似，当且仅当存在可逆矩阵$S$使得$B=S^{-1}AS$，记作$A\sim B$</p>
+
+<p><strong>相似的性质</strong>：若$A\sim B$，则：</p>
+
+<ol>
+  <li>相似具有<strong>等价性</strong>，即$A\sim A$（自反性）、$A\sim B\Longleftrightarrow B\sim A$（对称性）、$A\sim B, B\sim C \Rightarrow A\sim C$（传递性）</li>
+  <li>$tr(A)=tr(B)$</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$</td>
+          <td>A</td>
+          <td>=</td>
+          <td>B</td>
+          <td>$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>相似的矩阵有相同的<strong>特征多项式</strong>，故而有相同的<strong>特征值</strong></li>
+  <li>$A$和$B$可以看作<strong>同一线性变换在不同基下的矩阵</strong>（个人感觉这个更深刻，一句话把前面都能总结了）</li>
+</ol>
+
+<p>写到这里，希望能够和这么几个概念做个区分：</p>
+
+<ul>
+  <li>向量在不同基之间的坐标关系（相关概念：线性空间、基变换、过渡矩阵）</li>
+  <li>线性变化下向量的坐标变换（相关概念：线性变换）</li>
+  <li>不同基下线性变换的矩阵的关系</li>
+  <li>欧氏空间中不同正交基下过度矩阵的关系</li>
+</ul>
+
+<hr />
+
+<h2 id="14-线性变换的特征值与特征向量">1.4 线性变换的特征值与特征向量</h2>
+
+<p>从这一部分开始，我们逐渐来探索如何能够拿到最简单的矩阵。只不过我们从对角矩阵开始入手，先来看可对角化的矩阵怎么做，之后再来看不可对角化的矩阵怎么做。</p>
+
+<p>下一节研究不变子空间的矩阵表示，之所以研究这个是因为如果将特征子空间视为一个不变子空间，有一些不错的性质是可以保留下来的，当然这些性质包括矩阵表示的便利性！</p>
+
+<h3 id="141-特征值与特征向量的定义与求法">1.4.1 特征值与特征向量的定义与求法</h3>
+
+<p><strong>定义6（特征值与特征向量）</strong>：设$\mathcal{A}$是$V$上的线性变换，若$\exists \xi \neq 0$（<strong>一定注意不等于0向量这个条件</strong>），$\exists \lambda \in \mathbb{P}$有$\mathcal{A}\xi =\lambda \xi$，则称$\lambda$为一个特征值，称$\xi$为<strong>属于特征值</strong>$\lambda$的一个特征向量</p>
+
+<p>这个定义并没有限定维数，所以无限维也可以用！</p>
+
+<p><strong>命题1</strong>：设$A$是线性变换$\mathcal{A}$的矩阵，则有：</p>
+
+<ul>
+  <li>$\lambda$是$\mathcal{A}$的一个特征值当且仅当$\lambda$是矩阵$A$的特征值；</li>
+  <li>$\xi$是$\mathcal{A}$的属于$\lambda$的特征向量当且仅当其坐标$x$是$A$的属于$\lambda$的特征向量</li>
+</ul>
+
+<p><strong>如何求解特征值与特征向量？</strong></p>
+
+<p>注意：一旦这么说了，就说明空间是有限维的，下面也是</p>
+
+<ol>
+  <li>求$\mathcal{A}$在基下的矩阵$A$</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>求$</td>
+          <td>\lambda E-A</td>
+          <td>$的根，分别记为$\lambda_1,\lambda_2,\ldots,\lambda_s$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>对于每一个$\lambda_i$，求方程$(\lambda_i E-A)x=0$的基础解系$x_{i1},x_{i2},\ldots,x_{in_i}$</li>
+  <li>分别用上述坐标求出线性空间中的对应向量。</li>
+</ol>
+
+<p>一定要按照这几步来做！</p>
+
+<p>事实上最后我们就能够找到矩阵$X$使得$AX=XD$，其中$D$是对角矩阵。其中</p>
+
+\[X=(x_{11},x_{12},\ldots,x_{1n_1},x_{21},x_{22},\ldots,x_{2n_2},\ldots,x_{s1},x_{s2},\ldots,x_{sn_s})\]
+
+\[D=\text{diag}(\lambda_1,\lambda_1\ldots\lambda_1,\lambda_2,\lambda_2\ldots\lambda_2,\ldots,\lambda_s,\lambda_s\ldots\lambda_s)\]
+
+<p>其中每一个$\lambda_i$出现的次数均为$n_i$次</p>
+
+<h3 id="142-特征向量的结构特点">1.4.2 特征向量的结构特点</h3>
+
+<p><strong>定义7（特征子空间）</strong>：$V_\lambda={\alpha\in V:\mathcal{A}\alpha = \lambda\alpha}$</p>
+
+<p>特征子空间的性质：$V_\lambda=\text{Ker}(\lambda E-A)$，$\dim V_\lambda=n-\text{rank}(\lambda E-A)$</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>定义8（代数重数与几何重数）</strong>：记$f(\lambda)=</td>
+      <td>\lambda E-A</td>
+      <td>$，则该多项式称为<strong>特征多项式</strong>，设$f(\lambda_i)=0$，则根$\lambda_i$的重数称为<strong>代数重数</strong>，$\dim V_{\lambda_i}$称为$\lambda_i$的<strong>几何重数</strong>，</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>性质：几何重数不超过代数重数</p>
+
+<h3 id="143-矩阵可对角化的条件">1.4.3 矩阵可对角化的条件</h3>
+
+<p>前提：矩阵维数有限，也就是说线性空间是有限维的，设在$n$维线性空间$V$上讨论</p>
+
+<p><strong>定理1（记不住标到几了）</strong>：属于不同的特征值的特征向量之间线性无关</p>
+
+<p>证明：数学归纳法，这种转化的方式印象里之前在做基的扩充定理的时候用过</p>
+
+<p><strong>判定1</strong>：$\mathcal{A}$可对角化<strong>当且仅当</strong>$\mathcal{A}$有$n$个线性无关的<strong>特征向量</strong>，或者说线性无关的<strong>特征向量</strong>组成了一组基（这一部分用到了命题1的结论）</p>
+
+<p><strong>判定2</strong>：$\mathcal{A}$可对角化<strong>当且仅当</strong>$\mathcal{A}$的属于不同特征值的<strong>特征子空间</strong>的维数之和为$n$</p>
+
+<p><strong>判定2的推论1</strong>：$V$可以表示为特征子空间的直和</p>
+
+<p><strong>判定2的推论2</strong>：每个特征值的<strong>代数重数等于几何重数</strong></p>
+
+<p><strong>判定3（最小多项式法）</strong>：$\mathcal{A}$可对角化当且仅当其<strong>最小多项式</strong>$m(\lambda)$在数域$\mathbb{P}$中可分解为<strong>不同的</strong>一次因式的乘积。</p>
+
+<p>（其实这个定理应该往后放一放，不过觉得写在这里也可，就暂且这么做了，后面再具体说这个命题怎么证的，课本上似乎没有这个判定）事实上这个判定3和判定2的推论2是一个意思，因为如果拿Jordan块儿来说的话其实就是Jordan块主对角线以外元素全是0，不过这是后话，下面说到那边再提。</p>
+
+<hr />
+
+<h2 id="15-不变子空间">1.5 不变子空间</h2>
+
+<h3 id="151-不变子空间的定义与简单性质">1.5.1 不变子空间的定义与简单性质</h3>
+
+<p>这一部分研究不变子空间的性质以及不变子空间的矩阵表示</p>
+
+<p><strong>定义8（不变子空间）</strong>：设$W$是$V$的子空间，若$\forall \alpha \in W$，都有$\mathcal{A}\alpha\in W$，则称$W$为$\mathcal{A}$的不变子空间，简称$\mathcal{A}-$子空间。</p>
+
+<p>当然这个定义也可以用基的方法来充要刻画：$W=L(\alpha_1,\alpha_2,\ldots,\alpha_m)$，则$W$为$\mathcal{A}$的不变子空间当且仅当$\mathcal{A}\alpha_i\in W$</p>
+
+<p>零子空间和$V$称为<strong>平凡不变子空间</strong>，其他的子空间称为<strong>非平凡不变子空间</strong></p>
+
+<p><strong>命题1</strong>：$\text{Ker}\mathcal{A}$、$\text{Im}\mathcal{A}$、$V_\lambda$均是$\mathcal{A}-$子空间</p>
+
+<p><strong>命题2</strong>：若$\mathcal{AB}=\mathcal{BA}$，则$\text{Ker}\mathcal{B}$、$\text{Im}\mathcal{B}$、$\mathcal{B}$的特征子空间也是$\mathcal{A}-$子空间。一个推论就是把$\mathcal{B}$换成$f(\mathcal{A})$</p>
+
+<p><strong>命题3</strong>：$\mathcal{A}$的不变子空间的和与交还是其不变子空间</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>如果$W$是一个$\mathcal{A}-$不变子空间，那么就可以进一步把线性变换限制到$W$上$\mathcal{A}</td>
+      <td>W$。$\forall \delta\in W$，$(\mathcal{A}</td>
+      <td>W)\delta=\mathcal{A}\delta$</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="152-不变子空间的矩阵表示">1.5.2 不变子空间的矩阵表示</h3>
+
+<p>设$W$是一个非平凡不变子空间，其基为$\alpha_1,\alpha_2,\ldots,\alpha_m$，将其扩展为$V$的一组基$\alpha_1,\alpha_2,\ldots,\alpha_m,\alpha_{m+1},\ldots\alpha_n$，则：</p>
+
+\[\mathcal{A}(\alpha_1,\alpha_2,\ldots,\alpha_n)=(\alpha_1,\alpha_2,\ldots,\alpha_n)A\]
+
+<p>其中
+\(A=\begin{bmatrix}
+A_1&amp;A_2\\
+0&amp;A_3
+\end{bmatrix}\)</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>事实上$A_1$就是$\mathcal{A}</td>
+      <td>W$在$\alpha_1,\alpha_2,\ldots,\alpha_m$下的矩阵。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>把上面的这一段倒过来，如果能找到这样的一个$A$，就相应地能找到一个不变子空间$W$。</p>
+
+<h3 id="153-不变子空间与线性变换矩阵的最简表示初步">1.5.3 不变子空间与线性变换矩阵的最简表示初步</h3>
+
+<p>要来探究如何能够得到最简单的矩阵表示，先来看什么情况下（或者是当且仅当什么条件下）线性变换矩阵能够表示为<strong>准对角矩阵</strong></p>
+
+<p>从不变子空间入手的理由是，使用不变子空间能够让我们得到一些包含<strong>零矩阵</strong>的分块矩阵。</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>定理1</strong>：$\mathcal{A}$在$V$的一个基下的矩阵为<strong>分块对角矩阵</strong>$A=\text{diag}(A_1,A_2,\ldots,A_s)$<strong>当且仅当</strong>$V$能够分解为$\mathcal{A}$的不变子空间的直和：$V=W_1\oplus W_2\oplus\ldots\oplus W_s$，且$A_i$是$\mathcal{A}</td>
+      <td>W_i$在$W_i$的一个基下的矩阵</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>这个定理课本上证明的比较详尽了，但是这个结论相对来说还是直观的！</p>
+
+<p>在拿到这样的结论后，我们就可以先将注意力转移到<strong>如何找到这些不变子空间</strong>上（当然这些不变子空间是不是<strong>最优的</strong>依然还是后话）</p>
+
+<hr />
+
+<h2 id="16-零化多项式">1.6 零化多项式</h2>
+
+<p><strong>写在前面</strong>：这个部分按照我的想法实际上又是一个巨无霸，这里是书接上文来找不变子空间的，但是为了找到更优的不变子空间，我们还会在零化多项式上提出Hamilton-Cayley定理以及最小多项式，最后由最小多项式拿到我们最希望拿到的<strong>最简单的矩阵表示</strong>（Jordan）。</p>
+
+<p>在开始写零化多项式之前，希望暂且用一个引理来说明为什么又要引入零化多项式这个东西。在上面我们得到可以准对角化的充分必要条件是可以表示为不变子空间的直和，下面这个引理开始将不变子空间与多项式联系起来，之后Hamilton-Cayley定理确确实实把二者联系起来了。</p>
+
+<p><strong>引理</strong>：设$f(x)=f_1(x)f_2(x)\ldots f_s(x)$，且$(f_i(x),f_j(x))=1$（就是两两互素），则\(\text{Ker}f(\mathcal{A})=\text{Ker}f_1(\mathcal{A})\oplus\text{Ker}f_2(\mathcal{A})\oplus\ldots\oplus\text{Ker}f_s(\mathcal{A})\)</p>
+
+<p>这个命题的证明可以使用数学归纳法，但是我懒得现在在这里写了，各位可以试试。关键的两步是$(f_1(x)f_2(x)\ldots f_{s-1}(x),\,f_s(x))=1$，以及互素的充要刻画。</p>
+
+<h3 id="161-零化多项式与hamilton-cayley定理">1.6.1 零化多项式与Hamilton-Cayley定理</h3>
+
+<p>在上文中如果能够使得$f(\mathcal{A})=\mathcal{O}$，那么$\text{Ker}f(\mathcal{A})=V$，而$\text{Ker}f_i(\mathcal{A})$本就是$\mathcal{A}-$子空间（1.5.1命题2），那么问题就得到了初步的解决！</p>
+
+<p><strong>定义9（零化多项式）</strong>：设$f(x)\in \mathbb{P}[x]$，且$f(\mathcal{A})=\mathcal{O}$，则$f(x)$称为$\mathcal{A}$的零化多项式。</p>
+
+<p>对矩阵的零化多项式可以同样定义。</p>
+
+<p>零化多项式的存在性可以由$\dim \bar{V}=n^2$得知</p>
+
+<p><strong>定理1（Hamilton-Cayley）</strong>：$\mathcal{A}$的特征多项式$f(\lambda)$是一个零化多形式</p>
+
+<p>若$f(\lambda)=p_1^{r_1}(\lambda)p_2^{r_2}(\lambda)\ldots p_s^{r_s}(\lambda)$，其中$p_i(\lambda)$<strong>均不可约</strong>（注意这里是满足定理使用的条件的），则$V=\text{Ker}(p_1^{r_1}(\mathcal{A}))\oplus\text{Ker}(p_2^{r_2}(\mathcal{A}))\oplus\ldots\oplus\text{Ker}(p_s^{r_s}(\mathcal{A}))$</p>
+
+<p>进一步地，如果可以分解为一次因式的积：$f(\lambda)=(\lambda-\lambda_1)^{r_1}(\lambda-\lambda_2)^{r_2}\ldots(\lambda-\lambda_s)^{r_s}$，那么就可以得到：
+\(V=\text{Ker}((\mathcal{A}-\lambda_1E)^{r_1})\oplus\text{Ker}((\mathcal{A}-\lambda_2E)^{r_1})\oplus\ldots\oplus\text{Ker}((\mathcal{A}-\lambda_sE)^{r_s})\)</p>
+
+<p><strong>定义10（根子空间）</strong>：若特征多项式<strong>可以分解为一次因式的乘积</strong>，那么记$\lambda_i$为特征值，其代数重数为$r_i$，则$\text{Ker}((\mathcal{A}-\lambda_iE)^{r_i})$（其中$i=1,2,\ldots,s$）称为根子空间</p>
+
+<h3 id="162-最小多项式">1.6.2 最小多项式</h3>
+
+<p><strong>定义11（最小多项式）</strong>：$\mathcal{A}$的所有非零的零化多项式中<strong>次数最小、首项系数为1</strong>的多项式称为<strong>最小多项式</strong></p>
+
+<p><strong>命题1（唯一性）</strong>：最小多项式是唯一的</p>
+
+<p><strong>命题2</strong>：$f(x)$是$\mathcal{A}$的零化多项式多项式，当且仅当$f(x)$是最小多项式$m(x)$的倍式</p>
+
+<p><strong>推论1</strong>：特征多项式与零化多项式有相同的根</p>
+
+<p>把上面几个命题换成关于矩阵的依然成立，只不过矩阵之间还是相似的，所以还可以补充一句：</p>
+
+<p><strong>命题3</strong>：相似矩阵有相同的最小多项式</p>
+
+<p>下面稍微区分一点点概念，这里只是一个小提醒：举个例子，如果$\mathcal{A}$是幂等变换，即$\mathcal{A}^2=\mathcal{A}$，那么$f(x)=x(x-1)$是一个零化多项式。<strong>但是</strong>最小多项式应当说是$x(x-1)$或$x$或$x-1$！比如说$\mathcal{A}=\mathcal{I}$，那么显然$x-1$是最小多项式！</p>
+
+<p><strong>定理2</strong>：设$A$是$V$上的线性变换，若$V$可以分解为$\mathcal{A}-$子空间的直和，即：$V=W_1\oplus W_2\oplus \ldots\oplus W_s$，则$\mathcal{A}$的最小多项式为：
+\(m(\lambda)=[m_1(\lambda),m_2(\lambda),\ldots ,m_s(\lambda)]\)
+其中$m_i(\lambda)$是$W_i$在$\mathcal{A}|W_i$下的最小多项式。</p>
+
+<h2 id="17-jordan块与矩阵的最简表示">1.7 Jordan块与矩阵的最简表示</h2>
+
+<p><strong>定义12（Jordan块）</strong>：矩阵太难打了，就当我写了好了，总之就是$J(\lambda,k)$，其中主对角线上出现$k$个$\lambda$，它斜下方那一斜行全摆上1</p>
+
+<p><strong>性质1</strong>：$J(\lambda,k)$的最小多项式为$f(x)=(x-\lambda)^k$</p>
+
+<p><strong>命题1</strong>：若$\mathcal{A}=\lambda\mathcal{I}+\mathcal{B}$，其中$\mathcal{B}$是幂零指数为$n$的幂零变换，则存在基使得$\mathcal{A}$的矩阵为$J(\lambda,n)$</p>
+
+<p>命题1说明若$W$在$\mathcal{A}$下的最小多项式为$f(x)=(x-\lambda)^l$，则$\mathcal{A}$在某一组基下的矩阵为$J(\lambda,l)$。因为此时有$(\mathcal{A}-\lambda \mathcal{I})^l=\mathcal{O}$，记$\mathcal{B}=\mathcal{A}-\lambda\mathcal{I}$，则由最小多项式的定义可知$\mathcal{B}$是幂零指数为$l$的幂零矩阵。</p>
+
+<p>这样性质1就有了双向性</p>
+
+<p>下面说明线性变换、最小多项式以及Jordan块之间的关系，为了方便说明，暂且将数域扩大到$\mathbb{C}$</p>
+
+<p>在复数域上，$\mathcal{A}$的特征多项式一定能够表示为$f(\lambda)=(\lambda-\lambda_1)^{r_1}(\lambda-\lambda_2)^{r_2}\ldots(\lambda-\lambda_s)^{r_s}$，故而可以设最小多项式为$m(\lambda)=(\lambda-\lambda_1)^{t_1}(\lambda-\lambda_2)^{t_2}\ldots(\lambda-\lambda_s)^{t_s}$，其中$t_i\leqslant r_i$</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>由1.6的引理可以推知，$V$可以表示为$\text{Ker}(\mathcal{A}-\lambda\mathcal{I})^{t_i}$的直和，由1.5.3定理1推知$V$可以表示为准对角矩阵，其中准对角矩阵$A_i$为线性变换$\mathcal{A}</td>
+      <td>\text{Ker}(\mathcal{A}-\lambda\mathcal{I})^{t_i}$在$\text{Ker}(\mathcal{A}-\lambda\mathcal{I})^{t_i}$的一组基下的矩阵，而这一矩阵由上面的推导得知在某一组基下可以是Jordan块</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>在这一结论下，我们进一步能够得到矩阵可以对角化的一个充要条件（就是1.4.3判定3）</p>
+
+<hr />
+
+<p>线性变换的部分结束了。</p>
+
+<p>想说的一点话（<strong>这部分与复习内容无关</strong>）：其实后半段我一直在尝试着如何来解释清楚我们为什么要把多项式引入到线性变换当中、为什么要找到那个“最优雅”、最简单的矩阵形式，以及如何才能把多项式与最简单的形式连接起来。这里我越来越感觉自己的基础知识是多么薄弱，反思自己为什么底子如此薄弱。这里本应该是一个更加深刻的事物，可惜目前来看我没有机会一窥其面貌，我还想更加深入地了解最简单的矩阵表示与最小多项式直接有没有双向的关系，特征子空间、根子空间、不变子空间的联系（虽然这个本应该是一个基础知识层面的东西）</p>
+
+<p>感慨自己学的不够扎实，现在颇有应付考试的感觉。</p>
+
+<p>这两天PMENOM同学和汪宇师兄（不知道人家的网名，不知道这样直接真名会不会有些冒犯）在数海溺水公众号上发了三篇关于Jordan标准型方面的小文章，大家有兴趣可以去看看，他们在这些理论方面显然是比我扎实很多的，可能能够在那边学习到一些新的思路与方法，链接贴在下面：</p>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[代数的小小思考3</td>
+          <td>Jordan标准型算法（汪宇）](https://mp.weixin.qq.com/s/UVhZEvAKISwhMk-g-HzzBg)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[代数的小小思考4</td>
+          <td>标准型与λ-矩阵](https://mp.weixin.qq.com/s/TbqkaB1_QFbEfsc8QkfCUw)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<hr />
+
+<h1 id="2-欧氏空间">2 欧氏空间</h1>
+
+<p>这里我们均把线性空间定义在实数域上，如无特别说明，后面都是定义在$\mathbb{R}$上的线性变换$V$</p>
+
+<h2 id="21-内积与欧氏空间的定义">2.1 内积与欧氏空间的定义</h2>
+
+<h3 id="211-通用定义与性质">2.1.1 通用定义与性质</h3>
+
+<p><strong>定义1（内积）</strong>：设$V$是$\mathbb{R}$上的线性空间，满足以下四条运算性质的二元实函数称为<strong>内积</strong>，记作$(\alpha,\beta)$</p>
+
+<ul>
+  <li>$(\alpha,\beta)=(\beta,\alpha)$</li>
+  <li>$(k\alpha,\beta)=k(\alpha,\beta)$</li>
+  <li>$(\alpha+\beta,\gamma)=(\alpha,\gamma)+(\beta,\gamma)$</li>
+  <li>$(\alpha,\alpha)\geqslant 0$，等号成立当且仅当$\alpha=0$</li>
+</ul>
+
+<p><strong>定义2（欧氏空间）</strong>：包含内积运算的线性空间称为<strong>欧氏空间</strong></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>定义3（长度）</strong>：$\sqrt{(\alpha,\alpha)}$称为$\alpha$的长度，记作$</td>
+      <td>\alpha</td>
+      <td>$</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>定义4（夹角）</strong>：$&lt;\alpha,\beta&gt;=\arccos \dfrac{(\alpha,\beta)}{</td>
+      <td>\alpha</td>
+      <td> </td>
+      <td>\beta</td>
+      <td>}$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>定义5（正交）</strong>：$\alpha\bot\beta\Leftrightarrow(\alpha,\beta)=0$</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>定理1（Cauchy-Буняковский-Schwarz，柯西-布尼亚科夫斯基-施瓦茨不等式）</strong>：$</td>
+      <td>(\alpha,\beta)</td>
+      <td>\leqslant</td>
+      <td>\alpha</td>
+      <td> </td>
+      <td>\beta</td>
+      <td>$，等号成立当且仅当$\alpha$与$\beta$线性相关</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>之所以叫这个这么长的名字（写上去多少是有些恶趣味的），是因为这个不等式从不同角度概括了一些不同领域的性质</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>推论1（Cauchy）</strong>：考虑内积为向量空间的标准内积（就是之前做点乘的那个内积），那么有$</td>
+      <td>\sum_{i=1}^n a_ib_i</td>
+      <td>\leqslant\sqrt{\sum_{i=1}^na_i^2}\sqrt{\sum_{i=1}^nb_i^2}$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>推论2（Schwarz）</strong>：$\forall f,g\in C[a,b]$，有：
+\(|\int_a^bf(x)g(x)\text{d}x|\leqslant \left(\int_a^bf^2(x)\right)^{\frac{1}{2}}\left(\int_a^bg^2(x)\right)^{\frac{1}{2}}\)</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>命题1（三角不等式）</strong>：$</td>
+      <td>\alpha+\beta</td>
+      <td>\leqslant</td>
+      <td>\alpha</td>
+      <td>+</td>
+      <td>\beta</td>
+      <td>$，等号成立$&lt;\alpha,\beta&gt;=0$</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>命题2（勾股定理）</strong>：若$\alpha\bot\beta$，则$</td>
+      <td>\alpha+\beta</td>
+      <td>^2=</td>
+      <td>\alpha</td>
+      <td>^2+</td>
+      <td>\beta</td>
+      <td>^2$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>命题3（余弦定理）</strong>：懒得写了</p>
+
+<h3 id="212-基与内积的刻画">2.1.2 基与内积的刻画</h3>
+
+<p>在这里我们又回到有限维了！这里主要是度量矩阵的概念。</p>
+
+<p>设$n$维线性空间$V$中有基$\varepsilon_1,\varepsilon_2,\ldots,\varepsilon_n$，$\alpha$与$\beta$在这组基下的坐标分别为$X=(x_1,x_2,\ldots,x_n)^T$与$Y=(y_1,y_2,\ldots,y_n)^T$，则
+\((\alpha,\beta)=(\sum_{i=1}^n \varepsilon_ix_i,\sum_{j=1}^n\varepsilon_jy_j)=\sum_{i=1}^n\sum_{j=1}^nx_iy_j(\varepsilon_i,\varepsilon_j)=X^TAY\)</p>
+
+<p>其中$A=[(\varepsilon_i,\varepsilon_j)]_{n\times n}$，称为<strong>度量矩阵</strong></p>
+
+<p>根据这个定义可以知道：</p>
+
+<ul>
+  <li>给定内积的运算以及一组基后，度量矩阵已经唯一确定</li>
+  <li><strong>命题4</strong>：不同基下的度量矩阵互为合同（证明自己看，反正不难），注意线性变换中是同一个线性变换在不同基下的矩阵相似，别混淆了</li>
+  <li><strong>命题5</strong>：度量矩阵是正定矩阵</li>
+</ul>
+
+<p>这里补充一点，上面命题4和命题5实际上分别给出来证明矩阵合同以及正定的另外的方法：找到某个欧氏空间上的一组基，并恰到好处地定义一个内积！</p>
+
+<hr />
+
+<h2 id="22-一组特殊的基标准正交基">2.2 一组特殊的基：标准正交基</h2>
+
+<h3 id="221-标准正交基的定义与性质">2.2.1 标准正交基的定义与性质</h3>
+
+<p><strong>定义6（正交向量组）</strong>：若$V$中的一组向量组<strong>两两正交</strong>，则称这个向量组是正交向量组</p>
+
+<p><strong>命题6</strong>：正交向量组线性无关</p>
+
+<p>这个命题的证明中用到了内积的性质。这里提一句这个原因是，不要忘记研究欧氏空间中本来就有一个强大的运算，一定不要忘了用内积！</p>
+
+<p><strong>定义7（标准正交基）</strong>：$n$维欧氏空间中由<strong>单位向量</strong>组成的<strong>正交基</strong></p>
+
+<p>一般写作$(\varepsilon_i,\varepsilon_j)=\delta_{ij}$</p>
+
+<p><strong>性质1（坐标与内积）</strong>：设$\alpha =\sum_{i=1}^nk_i\varepsilon_i$，则$k_i=(\alpha,\varepsilon_i)$，也就是说$\alpha =\sum_{i=1}^n(\alpha,\varepsilon_i)\varepsilon_i$</p>
+
+<p>将内积定义为积分，正交基取为三角函数集，$\alpha =\sum_{i=1}^n(\alpha,\varepsilon_i)\varepsilon_i$是傅里叶展开</p>
+
+<p><strong>性质2（基的扩展定理）</strong>：$n$维欧氏空间中任意一组正交向量组均能够扩充为一组正交基</p>
+
+<p><strong>性质3（正交基存在定理）</strong>：实际上就是Schmidt正交化的过程，下一个部分写</p>
+
+<p><strong>性质4（过渡矩阵）</strong>：设$\eta_1,\eta_2,\ldots,\eta_n$是一组标准正交基，
+\((\beta_1,\beta_2,\ldots,\beta_n)=(\eta_1,\eta_2,\ldots,\eta_n)P\)
+$\beta_1,\beta_2,\ldots,\beta_n$是一组标准正交基<strong>当且仅当</strong>$P$是正交矩阵</p>
+
+<p><strong>正交矩阵的判定</strong>：以下几个命题等价</p>
+
+<ul>
+  <li>$A$是正交矩阵</li>
+  <li>$A’A=E$</li>
+  <li>$A$可逆，且$A’=A^{-1}$</li>
+  <li>$A$的列向量是列向量空间的一组标准正交基</li>
+  <li>$A$的行向量是行向量空间的一组标准正交基</li>
+</ul>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>性质5</strong>：$A$是正交矩阵则$</td>
+      <td>A</td>
+      <td>=1$或$</td>
+      <td>A</td>
+      <td>=-1$</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>注：前面判定里面几个等价条件其实都可以作为正交矩阵的性质，只不过上面写了就不重复写了</p>
+
+<h3 id="222-标准正交基的求解">2.2.2 标准正交基的求解</h3>
+
+<p>这部分是Schmidt正交化的步骤，一定要会做！</p>
+
+<ol>
+  <li><strong>选定基</strong>：首先取$V$中的一组基$\alpha_1,\alpha_2,\ldots,\alpha_n$</li>
+  <li><strong>正交化</strong>：做$\beta_i=\alpha_i-\sum_{j=1}^{i-1}\dfrac{(\alpha_i,\beta_j)}{(\beta_j,\beta_j)}\beta_j$，这一步相当于从$\alpha_i$中减掉分量重合的部分，保证是正交的（所以才会减掉$(\alpha_i,\beta_j)$的部分）</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>单位化</strong>：令$\eta_i=\dfrac{1}{</td>
+          <td>\beta_i</td>
+          <td>}\beta_i$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+
+<p>则$\eta_1,\eta_2,\ldots,\eta_n$即为所求</p>
+
+<hr />
+
+<h2 id="23-同构">2.3 同构</h2>
+
+<p>首先回忆线性空间中同构的定义：从$V$到$V’$的保加法保数乘的双射。</p>
+
+<p><strong>定义8（同构）</strong>：设$V$与$V’$均是<strong>实内积空间</strong>，如果存在一个从$V$到$V’$的一个双射$\sigma$，使得$\forall \alpha,\beta\in V$，$\forall k\in \mathbb{R}$，有</p>
+
+<ul>
+  <li>$\sigma(\alpha+\beta)=\sigma(\alpha)+\sigma(\beta)$</li>
+  <li>$\sigma(k\alpha)=k\sigma(\alpha)$</li>
+  <li>$(\sigma(\alpha),\sigma(\beta))=(\alpha,\beta)$</li>
+</ul>
+
+<p>则称双射$\sigma$为一个<strong>同构映射（保距同构）</strong>，称$V$与$V’$是同构的。</p>
+
+<p>注：可以证明如果一个<strong>线性映射</strong>是<strong>保距</strong>的，那么必然满足第三条条件（<strong>保内积</strong>）。这一部分的证明可以从$(\sigma(\alpha-\beta),\sigma(\alpha-\beta))=(\alpha-\beta,\alpha-\beta)$出发，并不难证明</p>
+
+<p><strong>首先先从同构的视角来看</strong>：</p>
+
+<p>事实上，欧氏空间中的同构<strong>前提先是线性空间的同构</strong>，所以<strong>满足线性空间的同构的所有性质</strong>，此外由于保内积，故而<strong>也具有和内积有关的性质</strong>。所以我们可以得到如下的一些性质：</p>
+
+<p><strong>性质1</strong>：设有限维欧氏空间$V$与$V’$同构，则存在同构映射$\sigma$，使得$V$中一组<strong>标准正交基</strong>映射为$V’$中的一组<strong>标准正交基</strong>。</p>
+
+<p>这个性质中基的映射是线性空间的直接推论，而拿到标准正交基的结论则是<strong>保内积</strong>的性质——因为一个线性同构如果还保内积的话，它就是一个<strong>保距同构</strong>（事实上保距同构的定义就是保加法+保数乘+保内积的双射）</p>
+
+<p><strong>推论1</strong>：$V$上的线性变换$\sigma$是一个保距同构，当且仅当它把$V$中的一组标准正交基映射为另一组标准正交基（注意，这里说的是$V$内部的同构）</p>
+
+<p><strong>定理1</strong>：两个有限维欧氏空间同构<strong>当且仅当</strong>维数相等。（这个相当于线性同构性质的基础上加上了内积的作用）</p>
+
+<p><strong>推论2</strong>：$n$维线性空间$V$在不同内积定义下得到的不同的欧氏空间彼此同构，且这些欧氏空间都和定义了<strong>标准内积</strong>的欧几里得空间$\mathbb{R}^n$同构</p>
+
+<p>事实上只需要将标准正交基之间一一对应即可——不过这样就说明了<strong>由于标准正交基不唯一，所以两个欧氏空间的同构映射也不唯一</strong></p>
+
+<p><strong>定理2</strong>：欧氏空间之间的同构具有等价性，即满足：<strong>自反性、对称性、同构性</strong></p>
+
+<p><strong>再把这个同构减弱到一个映射上来看</strong>：</p>
+
+<p><strong>定理3</strong>：设$V$与$V’$均是<strong>实内积空间</strong>，如果存在一个从$V$到$V’$的一个<strong>映射</strong>$\sigma$，使得$\forall \alpha,\beta\in V$，$\forall k\in \mathbb{R}$，有：$(\sigma(\alpha),\sigma(\beta))=(\alpha,\beta)$，则：</p>
+
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$\sigma$保距离不变：$</td>
+          <td>\sigma(\alpha)</td>
+          <td>=</td>
+          <td>\alpha</td>
+          <td>$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>$\sigma$是线性映射：$\sigma(\alpha+\beta)=\sigma(\alpha)+\sigma(\beta)$，$k\sigma(\alpha)=k\alpha$</li>
+  <li>$\sigma$是单射：$\text{Ker}\sigma=0$</li>
+</ol>
+
+<p><strong>注意</strong>：这里说的不是<strong>双射</strong>，整个命题中对$\sigma$的要求<strong>只有两个</strong>：是个映射，保持内积。但是我们拿到的结论是强的！从保内积可以推出来保线性，那么如果还是满射的话它就可以是一个<strong>同构映射</strong>了！</p>
+
+<p><strong>再注意</strong>：截止到这里，我们拿到了：保内积则保线性、保距、保单射；那么围绕内积一系列的性质也能保存下来，比如说<strong>保夹角</strong>等等</p>
+
+<p><strong>定理4</strong>：设$V$与$V’$均是<strong>实内积空间</strong>，如果存在一个从$V$到$V’$的一个<strong>满射</strong>$\sigma$保持内积不变，则$\sigma$是保距同构映射</p>
+
+<p><strong>推论3</strong>：设$V$与$V’$均是$n$<strong>维实内积空间</strong>，如果存在一个从$V$到$V’$的一个<strong>映射</strong>$\sigma$保持内积不变，则$\sigma$是保距同构映射。</p>
+
+<hr />
+
+<h2 id="24-子空间与正交补">2.4 子空间与正交补</h2>
+
+<h3 id="241-正交补及其性质">2.4.1 正交补及其性质</h3>
+
+<p><strong>定义9（元素与空间的正交）</strong>：设$V_1$是$V$的两个子空间，若$\forall \alpha \in V$，$\forall \beta \in V_1$，有$(\alpha, \beta)=0$，则称$\alpha$与$V_1$正交，记作$\alpha\bot V_2$</p>
+
+<p><strong>定义10（子空间的正交）</strong>：设$V_1$与$V_2$是$V$的两个子空间，若$\forall \alpha \in v_1$，$\forall \beta \in V_2$，有$(\alpha, \beta)=0$，则称这两个子空间正交，记作$V_1\bot V_2$</p>
+
+<p><strong>命题1</strong>：$V_1\bot V_2\Rightarrow V_1\cap V_2={0}$，理由是只有零向量与自己正交（度量矩阵的正定性）</p>
+
+<p><strong>推论1</strong>：若$V_1,V_2,\ldots,V_n$两两正交，则$V_1+V_2+\ldots+V_n$是直和</p>
+
+<p><strong>定义11（正交补）</strong>：在欧氏空间$V$中，若$V_1\cap V_2$且$V_1+V_2=V$，则$V_1$与$V_2$互为正交补</p>
+
+<p><strong>命题2</strong>：<strong>有限维</strong>欧氏空间中，任意子空间的正交补存在且唯一（标准正交基扩展）</p>
+
+<p>再考虑到直和性，其实还能拿到更多性质，就暂且简单列举以下：</p>
+
+<ul>
+  <li>$\dim V_1+\dim V_1^\bot =n$</li>
+  <li>$V_1^\bot={\alpha:\alpha\bot V_1}$</li>
+</ul>
+
+<h3 id="242-正交投影">2.4.2 正交投影</h3>
+
+<h4 id="2421-引入线性空间中的投影变换">2.4.2.1 引入：线性空间中的投影变换</h4>
+
+<p><strong>定义12（幂等变换）</strong>：对数域$\mathbb{P}$上的线性空间$V$，若$V$上的线性变换$\mathcal{A}$满足：$\mathcal{A}^2=\mathcal{A}$，则称$\mathcal{A}$是幂等变换</p>
+
+<p><strong>定义13（投影变换）</strong>：设$V$是数域$\mathbb{P}$上的线性空间，$U,W$是其子空间，且$V=U\oplus W$。任取$\alpha\in V$，设$\alpha=\alpha_1+\alpha_2$，其中$\alpha_1\in U,\alpha_2\in V$，定义映射：</p>
+
+\[\begin{align*}
+\mathcal{P}_U:V&amp;\to V\\
+\alpha&amp;\mapsto \alpha_1
+\end{align*}\]
+
+<p>则称$\mathcal{P}_U$是平行于$W$在$U$上的投影。</p>
+
+<p>这一部分欲说明一个定理：</p>
+
+<p><strong>定理1（投影变换与幂等变换）</strong>：$\mathcal{A}$是投影变换当且仅当$\mathcal{A}$是幂等变换</p>
+
+<p>为了说明这个定理，我们先引入几个较为直观的引理</p>
+
+<p><strong>引理1</strong>：设$V$是数域$\mathbb{P}$上的线性空间，$U,W$是其子空间，$\mathcal{P}_U$是平行于$W$在$U$上的投影，则$\forall \alpha\in V$</p>
+
+\[\mathcal{P}_U(\alpha)=\begin{cases}
+\alpha&amp;\alpha\in U\\
+0&amp;\alpha\in W
+\end{cases}\]
+
+<p>这个引理实际上就是投影变换的定义。引理1说明对于投影变换而言$U$是$\mathcal{P}_U-$子空间，且$U=\text{Im}\mathcal{P}_U$，$W=\text{Ker}\mathcal{P}_U$</p>
+
+<p><strong>引理2</strong>：若$\mathcal{A}$是$V$上的幂等变换，则$\text{Im}\mathcal{A}\oplus\text{Ker}\mathcal{A}=V$</p>
+
+<p><strong>证明</strong>：设$\alpha\in V$，则$\mathcal{A}\alpha\in\text{Im}\mathcal{A}$，又</p>
+
+\[\mathcal{A}(\alpha-\mathcal{A}\alpha)=\mathcal{A}\alpha-\mathcal{A}^2\alpha=0\]
+
+<p>则$\alpha-\mathcal{A}\alpha\in \text{Ker}\mathcal{A}$</p>
+
+<p>又$\alpha=(\alpha-\mathcal{A}\alpha)+\mathcal{A}\alpha$，故$V=\text{Im}\mathcal{A}+\text{Ker}\mathcal{A}$，下面证明直和</p>
+
+<p>$\forall \beta\in\text{Im}\mathcal{A}\cap\text{Ker}\mathcal{A}$，由于$\beta\in\mathcal{A}$，故$\exists \gamma\in V$，$\beta=\mathcal{A}\gamma$，又$\beta\in\text{Ker}\mathcal{A}$，则有：</p>
+
+\[0=\mathcal{A}\beta=\mathcal{A}(\mathcal{A}\gamma)=\mathcal{A}^2\gamma=\mathcal{A}\gamma=\beta\]
+
+<p>故$\text{Im}\mathcal{A}\cap\text{Ker}\mathcal{A}=0$，故引理得证。</p>
+
+<p>下面开始证明原命题</p>
+
+<p><strong>证明</strong>：若$\mathcal{A}$是投影变换，令$U=\text{Im}\mathcal{A}$，$W=\text{Ker}\mathcal{A}$，则$\mathcal{A}=\mathcal{P}_U$。$\forall \alpha\in V$，$\mathcal{A}\alpha\in U$，则由投影变换的定义及引理1知：$\mathcal{A}(\mathcal{A}\alpha)=\mathcal{A}\alpha$，即$\mathcal{A}^2=\mathcal{A}$，故$\mathcal{A}$是幂等变换</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>若$\mathcal{A}$是幂等变换，则知$\mathcal{A}V$是$\mathcal{A}-$子空间，考虑$\mathcal{A}</td>
+      <td>\mathcal{A}V$，则知$\mathcal{A}</td>
+      <td>\mathcal{A}V=\mathcal{I}</td>
+      <td>\mathcal{A}V$。又$\mathcal{A}V=\text{Im}\mathcal{A}$，再考虑$\alpha\in \text{Ker}V$，$\mathcal{A}(\mathcal{A}\alpha)=\mathcal{A}0=0$。又$V=\text{Im}\mathcal{A}\oplus\text{Ker}\mathcal{A}$（引理2），则由定义可得$\mathcal{A}=\mathcal{P}_{\text{Im}\mathcal{A}}$</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="2422-正交投影及其性质">2.4.2.2 正交投影及其性质</h4>
+
+<p><strong>定义14（正交投影）</strong>：设$V$是一个欧氏空间，$W$是子空间，$V=W\oplus W^\bot$，则$\forall \alpha\in W$，$\alpha=\beta+\gamma$，其中$\beta\in W$，$\gamma\in W^\bot$。定义变换$\mathcal{P}_W$，$\mathcal{P}_W\alpha=\beta$，则$\mathcal{P}$称<strong>正交投影变换</strong>，称$\beta$为$\alpha$<strong>在</strong>$W$<strong>中的正交投影</strong>，称$\gamma$为$\alpha$<strong>关于</strong>$W$<strong>的正交分量</strong></p>
+
+<p><strong>定理2（正交分解定理）</strong>：设$V$是一个$n$维欧氏空间，非零子空间$W$的一组正交基为$\eta_1,\eta_2,\ldots,\eta_m$，则：</p>
+
+\[\mathcal{P}_W\alpha=\sum_{i=1}^m\frac{(\alpha,\eta_i)}{(\eta_i,\eta_i)}\eta_i\]
+
+<p>这个定理的证明比较简易，不过从这个地方更容易看出来Schmidt正交化中为什么正交向量是那样构造的：相当于就是在$\alpha_i$上减掉了投影的部分，只保留了正交的部分！</p>
+
+<p>下面我们来定义一些欧氏空间中颇有几何味道的概念</p>
+
+<p><strong>定义15（向量到空间的距离）</strong>：$V$是$n$维欧氏空间，$W$是一个子空间，$\alpha\in V$，定义$\alpha$到$W$的距离为：$|\alpha-\mathcal{P}_W\alpha|$</p>
+
+<p>在实际计算这个距离的时候，估计是要用到上面的定理2，所以那个定理也一定要记住！注意我们在那个定理中取到的是一组<strong>正交基</strong>！一定要会算！</p>
+
+<p>下面放一个有点几何味道的小定理，可以试着证明一下</p>
+
+<p><strong>定理3</strong>：设$W$是欧氏空间$V$的一个子空间，且$V=W\oplus W^\bot$，则$\forall \alpha\in V$，$\alpha_1\in W$是$\alpha$在$W$上的正交投影的充分必要条件是：$|\alpha-\alpha_1|\leqslant|\alpha-\gamma|,\forall\gamma\in W$</p>
+
+<hr />
+
+<h2 id="25-正交变换">2.5 正交变换</h2>
+
+<p>个人感觉正交变换和同构有些联系：同构实际上是两个不同欧氏空间的一个映射关系，正交变换把这个同构进一步限制到一个欧氏空间中去了</p>
+
+<p><strong>定义16（正交变换）</strong>：设欧氏空间$V$上的线性变换$\mathcal{A}$，满足<strong>保内积</strong>，即$\forall \alpha,\beta\in V$，$(\mathcal{A}\alpha,\mathcal{A}\beta)=(\alpha,\beta)$，则$\mathcal{A}$称为正交变换</p>
+
+<p>这个定义与下面这个定义等价，这么说是因为保内积的映射本来就具有线性性、单射性（2.1.3的定理3）</p>
+
+<p><strong>定义16’（正交变换）</strong>：欧氏空间$V$上到自身的映射$\mathcal{A}$，如果保内积，则$\mathcal{A}$是一个正交变换。</p>
+
+<p>其实写到这里的时候注意到在丘维声版《高等代数》中对正交变换的定义是：$V$上的满射保内积的变换$\mathcal{A}$，可以注意到这里的要求比上面的定义中多了一条<strong>满射</strong>，这个说法就更强一些，因为定义9中的说法只能说明映射具有单射性，说明不了满射。最后翻看了另外基本教材，最后决定这里的表述沿用北大版课本的表述，就是上面的定义9，下面的一系列内容也都是在这个基础上展开</p>
+
+<blockquote>
+  <p>6月14日补充：和其他同学以及助教师兄交流了一下<strong>正交变换的定义</strong>，最终确定正交变换的定义中需要满足<strong>满射</strong>的条件，北大版的我认为可能是作者表述不当。在前面我已经强调过满射这个条件的重要性，希望各位也引起重视，<strong>尤其是重视有限维和无限维的差别！</strong>。这里重新表述一下定义</p>
+
+  <p><strong>定义16（正交变换）</strong>：欧氏空间$V$上到自身的<strong>满射</strong>$\mathcal{A}$，如果保内积，则$\mathcal{A}$是一个正交变换。</p>
+
+  <p>正文内容我就懒得改了，总之以上面这个为准！</p>
+
+  <p>下面关于有限维的定理是没有问题的。北大版默认说的是有限维下的欧氏空间，虽然在应用层面上大多数都是研究有限维的空间，但是从理论上建立这套理论的时候个人觉得这么处理并不合适</p>
+
+  <p>我在总结下面每一条定理的时候每一个都注意了一下是否需要“额外的满射条件”，虽然现在看来并没有必要就是了</p>
+</blockquote>
+
+<p>下面从“<strong>保内积</strong>”出发得到几条比较显然的性质：</p>
+
+<ul>
+  <li><strong>性质1</strong>：正交变换保持非零向量夹角不变（实际上是保内积的推论，可以应用在无限维）</li>
+  <li><strong>性质2</strong>：正交变换保正交关系不变（实际上还是保内积的推论，也可以应用在无限维）</li>
+  <li><strong>性质3</strong>：正交变换保持向量间距离不变</li>
+  <li><strong>性质4</strong>：两个正交变换的乘积还是正交变换（这个应该说是同构的传递性可得）</li>
+</ul>
+
+<p><strong>定理5</strong>：设$\mathcal{A}$是<strong>有限维</strong>上的线性空间的正交变换，则下面几个命题等价：</p>
+
+<ul>
+  <li>$\mathcal{A}$是正交变换</li>
+  <li>$\mathcal{A}$保距（保内积的直接推论）</li>
+  <li>$\mathcal{A}$将标准正交基映射为标准正交基（保距同构性质）</li>
+  <li>$\mathcal{A}$在任意一组标准正交基下的矩阵都是<strong>正交矩阵</strong>（因为把标准正交基映射为标准正交基，过渡矩阵是正交矩阵）</li>
+</ul>
+
+<p>进一步对正交变换做分类，其行列式为1或-1，则可以将正交变换分为两类，其中行列式为<strong>1</strong>的称为<strong>第一类的</strong>，行列式为-1的称为<strong>第二类</strong>的</p>
+
+<p><strong>定理6</strong>：设$\mathcal{A}$是欧氏空间$V$的一个正交变换，设$W$是$\mathcal{A}$的一个<strong>有限维不变子空间</strong>，则$W^\bot$也是$\mathcal{A}$的一个不变子空间</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>这个命题可以当作一个小练习来试一试。“有限维”这个条件相当于确保了$\mathcal{A}</td>
+      <td>W$既单又满，还保内积保线性。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>欲证$W^\bot$是不变子空间，则只需证$\forall \alpha\in W^\bot$，$\mathcal{A}\alpha\in W^\bot$，即证$\forall \beta\in W$，$(\mathcal{A}\alpha,\beta)=0$。由有限维不变子空间，$\forall \beta\in W$，$\exists \gamma\in W$，使得$\beta=\mathcal{A}\gamma$，之后再用正交变换的定义就可以得证</p>
+
+<p><strong>定理7</strong>：设$\mathcal{A}$是欧氏空间$V$的一个正交变换，若$\mathcal{A}$有特征值，则特征值为1或-1</p>
+
+<p>依然是用定义验证就可以，不难，不细写了。</p>
+
+<blockquote>
+  <p>也是6月14日的补充</p>
+
+  <p>如果满射是正交变换中天然满足的，那么我们还可以接着写几个比较明显的结果</p>
+
+  <p><strong>命题1</strong>：欧氏空间$V$上的变换$\mathcal{A}$是正交变换，当且仅当$\mathcal{A}$是$V$到自身的保距同构</p>
+
+  <p><strong>命题2</strong>：欧氏空间$V$上的变换$\mathcal{A}$是正交变换是<strong>可逆变换</strong>，且逆变换$\mathcal{A}^{-1}$也是正交变换</p>
+
+  <p><strong>命题3</strong>：$n$维欧氏空间上的变换$\mathcal{A}$保内积，则该变换是正交变换（这里限定了有限维，所以只需要单射就可以推出满射）</p>
+
+  <p>其实这几个命题一直在倒腾欧氏空间的同构的几条性质以及线性变换的核与象的性质！</p>
+</blockquote>
+
+<h2 id="26-对称变换与实对称矩阵的标准型">2.6 对称变换与实对称矩阵的标准型</h2>
+
+<h3 id="261-对称变换及其性质">2.6.1 对称变换及其性质</h3>
+
+<p><strong>定义17（对称变换）</strong>：设$\mathcal{A}$是欧氏空间$V$的一个<strong>变换</strong>（注意，不是正交变换），若$\mathcal{A}$满足：$(\mathcal{A}\alpha,\beta)=(\alpha,\mathcal{A}\beta)$，则$\mathcal{A}$是$V$上的对称变换</p>
+
+<p><strong>性质1</strong>：对称变换是线性变换</p>
+
+<p>这个自己证明就好，很简单</p>
+
+<p><strong>性质2</strong>：$n$维欧氏空间$V$上的线性变换$\mathcal{A}$是对称变换当且仅当$\mathcal{A}$在任意一个标准正交基下的矩阵是对角矩阵</p>
+
+<p>这个的证法依然用了<strong>标准正交基下的坐标关系</strong>的公式，证明简要说明如下：</p>
+
+<p>设$\mathcal{A}(\eta_1,\eta_2,\ldots,\eta_n)=(\eta_1,\eta_2,\ldots,\eta_n)A$，则记$\mathcal{A}\eta_j$在$\eta_1,\eta_2,\ldots,\eta_n$下第$i$个坐标分量为$a_{ij}=(\mathcal{A}\eta_j,\eta_i)$</p>
+
+<p>$\mathcal{A}$是$V$上的对称变换</p>
+
+<p>$\Longleftrightarrow(\mathcal{A}\alpha,\beta)=(\alpha,\mathcal{A}\beta)$</p>
+
+<p>$\Longleftrightarrow(\mathcal{A}\eta_j,\eta_i)=(\eta_j,\mathcal{A}\eta_i)=(\eta_i,\mathcal{A}\eta_j)$</p>
+
+<p>$\Longleftrightarrow a_{ij}=a_{ji}$</p>
+
+<p><strong>性质3</strong>：设$\mathcal{A}$是欧氏空间$V$的对称变换，若$W$是$\mathcal{A}-$子空间，则$\mathcal{W}^\bot$也是（证明略，验证定义即可）</p>
+
+<p><strong>性质4（重要）</strong>：设$\mathcal{A}$是欧氏空间$V$的对称变换，则$V$中$\mathcal{A}$的属于<strong>不同特征值的特征向量正交</strong></p>
+
+<p>这个结论不难证，但是这个结论还是很强大的！这个结论为下面对角化提供了理论依据</p>
+
+<p><strong>定理1</strong>：设$\mathcal{A}$是欧氏空间$V$的对称变换，则$V$中存在一组单位正交基使得$\mathcal{A}$在这组基下的矩阵为<strong>对角矩阵</strong></p>
+
+<p>先前我们已经得到$\mathcal{A}$的矩阵是对称矩阵，故只需要说明：存在正交矩阵$T$，使得$T^{-1}AT$为对角矩阵，其中$A$是实对称矩阵。这个定理的证明留到下面</p>
+
+<h3 id="262-实对称矩阵的对角化">2.6.2 实对称矩阵的对角化</h3>
+
+<p><strong>引理1</strong>：实对称矩阵$A$的特征值都是实数</p>
+
+<p>为了证明这个定理，首先将$A$视为复矩阵，来证明$\lambda=\bar{\lambda}$。证明的过程比较长，但是不难，总的来说就是一直来回倒腾共轭那套东西，建议这一部分阅读课本。</p>
+
+<p><strong>定理1’</strong>：设$A$是$n$阶实对称矩阵，则存在正交矩阵$T$，使得$T^{-1}AT$为对角矩阵。</p>
+
+<p>这个定理的证明使用了数学归纳法。为了由$n-1$阶来推出$n$阶成立，我们又使用了上一小节的<strong>性质3</strong>，不过具体的证明还是看书吧。</p>
+
+<p>这一部分对于考试来说最重要是<strong>如何找到这个正交矩阵</strong>。对角化的步骤之前已经说过了，事实上这里也是对角化，只不过$T$是一个正交矩阵，就需要<strong>T的每一列都是标准正交</strong>的（这是由正交矩阵的充要刻画得来的）。故而在求解中，只需要将<strong>每一组特征向量就地标准正交化</strong>即可（这一步又是由上面性质4保证的）！</p>
+
+<p>如果进一步要求$T$的行列式的值究竟等于1还是-1的话，还可以继续这么做：</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>比如说按照刚刚的方法得到的$</td>
+      <td>T</td>
+      <td>=-1$，但是最后要的是$</td>
+      <td>T</td>
+      <td>=1$的，那我们只需要做一个$S=\text{diag}(-1,1,1,\ldots,1)$，再使$T=TS$，这样依然能够保证$T$是一个正交矩阵，同时还使$</td>
+      <td>T</td>
+      <td>=1$了！</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>（其实就是给原本的$T$加了一个负号）</p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2021-05-21T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2021/05/21/data_science.html">数据科学概论：复习笔记</a></div><div class="next"><span>下篇</span><a href="/2021/05/22/end_review_math_analyis_2.html">数学分析2：期末复习笔记</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小闰"><meta itemprop="url" content="/"><meta itemprop="description" content="慢慢来，不要怕。点心总是会有的。"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© 小闰的甜品站 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

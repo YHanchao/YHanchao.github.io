@@ -1,0 +1,1029 @@
+<!DOCTYPE html><html lang="zh">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>主页 - 小闰的甜品站</title>
+
+<meta name="description" content="Your Site Description
+">
+<link rel="canonical" href="http://localhost:4000/"><link rel="alternate" type="application/rss+xml" title="小闰的甜品站" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Your Site Description
+" href="/">小闰的甜品站</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/WebPage"><header style="display:none;"><h1>主页</h1></header><meta itemprop="headline" content="主页"><meta itemprop="author" content="小闰"/><div class="js-article-content"><div class="layout--articles"><div class="article-list items items--divided"><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2021/10/03/JacobiCalculus.html"><h2 itemprop="headline" class="item__header">Jacobi矩阵与多元函数微分</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody">看得出来复旦版的课本尝试着使用更加简单的方法把数学分析的内容介绍给读者，从两个变量来介绍多元函数微积分不失为一种策略。虽说从二维到$n$维不会产生本质上的困难，但是始终停留在二维也让许多描述受到了限制。
+
+我们需要一些更为深入的方法论，让我们能更深一步地观察函数的微分是怎么回事。为什么课本上一会儿这样表述，一会儿又那样表述，似乎中间缺少了一些环节。这种想法是写这份文档的动机，也是我想了解的一些东西。
+
+
+
+举个简单的例子，复合函数本质上是映射的复合，但是仔细去看，它们似乎并不是简单的$\mathbb{R}^2\to\mathbb{R}$映射。比如$u=f(x,y)$，其中$x=x(s,t)$，$y=y(s,t)$，这实际上复合函数$u=f\circ\bm{g}$，其中
+\(\begin...</div><p><a href="/2021/10/03/JacobiCalculus.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 10月03日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-10-03T00:00:00+08:00"></div>
+      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2021/09/24/EuclidPoints.html"><h2 itemprop="headline" class="item__header">欧氏空间中点列的极限论</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody">这是一份尽量比较简短的笔记，用以补充复旦欧阳光中版数分格外简洁的点列极限论（…）。内容来自中科大版《数学分析教程》，个人很喜欢这本书，于是以这种方式分享出来。
+
+后续全部内容如无特别说明，均是建立在$n$维欧氏空间上的。
+
+
+
+本文档有PDF格式，请点击这里查看下载
+
+一些正题之前的说明
+
+这里主要是对$n$维欧氏空间做出一些基本的定义，因为大多数比较基础，所以就在这里单独列出来了
+
+
+  
+    内积：这部分的定义同高等代数中的定义，包括记号也是。设$\alpha$，$\beta\in\mathbf{R}^n$，记内积为$&lt;\alpha,\beta&gt;$；内积的性质参见高等代数。
+  
+  
+    
+      
+        
+          距离：$\fora...</div><p><a href="/2021/09/24/EuclidPoints.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 09月24日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-09-24T00:00:00+08:00"></div>
+      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2021/09/15/wechat.html"><h2 itemprop="headline" class="item__header">甜品站微信分站开张！</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody">这是今天的第二更，不过一想到又有了新的发布方式就会觉得很开心呀！
+
+
+
+为什么要做微信公众号
+
+首先是一个小对比
+
+
+  
+    
+      对比内容
+      独立博客
+      微信公众号
+    
+  
+  
+    
+      写作难度
+      容易
+      有点难排版
+    
+    
+      发布方式
+      较为容易
+      较为容易
+    
+    
+      内容掌控程度
+      极强
+      一般
+    
+    
+      数学公式
+      兼容性尚可
+      基本不能用
+    
+    
+      文档修改
+      容易
+      困难
+    
+    
+      订阅模式
+      基本没...</div><p><a href="/2021/09/15/wechat.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 09月15日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-09-15T00:00:00+08:00"></div>
+      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2021/09/15/speedUp.html"><h2 itemprop="headline" class="item__header">如何提高博客的访问速度</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody">建立在Github上的博客网站在访问时不可避免地会比访问国内的服务器慢很多，但是出于国内法律法规以及相关成本又不得不选择国外的服务器……总之最后摸索出来一套尽可能便宜的方案，对于个人博客来说也算是足够用了
+
+
+
+先来说说国内的解决方案
+
+搭建这个静态网站的时候我考虑过使用对象存储服务的静态网站发布的功能来访问，因为是背后依托的是国内大厂的服务器，所以显然访问速度与稳定性都非常好。但是有一个问题，如果要绑定自定义域名的话，首先需要对网站进行备案，但是云计算平台提供的域名备案服务都要求前提有购买某些云计算服务（比如云服务器这些）。可是如果自己去工商局备案的话又实在太麻烦了……于是这个方案就否决了。
+
+之后就是使用国内CDN。CDN就是一个通过访问网络边缘节点缓存的内容来加速客户端访问的一个...</div><p><a href="/2021/09/15/speedUp.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 09月15日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-09-15T00:00:00+08:00"></div>
+      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2021/08/24/hexo_blogMaker.html"><h2 itemprop="headline" class="item__header">Hexo博客网站指北：如何建立属于自己的甜品站</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody">写在前面：使用Hexo建立博客的教程在网上可以说是一搜一大把，可仔细一看基本都是互相抄。不过嘛本来这个东西就已经很简单了，所以这种同质化也能理解。这次这份甜品会写一些自己踩的坑以及相关的解决方案，希望能够大致说清楚如何建立这样一个网站。
+
+
+
+搭建博客站点的整体思路
+
+如何将自己的博客/文章/笔记公开发布呢？目前已经有不少成熟的解决方案，比如公众号/CSDN/知乎等等，但是在这些平台上总是有一种让自己处于被动位置的感觉，内容发布后的管辖权似乎就离自己越来越远了。于是就有了自己做一个网站来公开自己的内容的想法，这样整个网站归自己所有，自然也不会担心因为各种各样的原因而被下架。
+
+但是对于写作的人而言，我只想写好一篇文章，然后这篇文章就能够漂漂亮亮地呈现在页面上，对于中间的实现步骤则希望越...</div><p><a href="/2021/08/24/hexo_blogMaker.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 08月24日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-08-24T00:00:00+08:00"></div>
+      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2021/07/30/tape_chat.html"><h2 itemprop="headline" class="item__header">如何从Tape获取提问箱信息</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody">如何从Tape获取提问箱信息
+
+能爬下来不意外，能这么容易就爬下来挺意外。万万没想到这个网站居然没有一点点加密。
+
+后续如果找到了boxCode的获取方法会接着更新
+
+
+
+首先明确以下字段：
+
+
+  userId：即用户id，如：57690dbf7d6c7cc3f1de808216e7b047
+  shareCode：这个是用户可以指定的提问箱网址，如：UIQEMC。这一字段长度均为6字符
+  boxCode：即提问箱的id，如：5IYYGIT5。这一字段长度均为8字符
+
+
+注：这里几个字段都是来自我自己的账号
+
+经过简单的抓包，发现Tape从服务器获取资源这一过程几乎没有任何加密。
+
+// 这个网站存储了所有的资源数据
+https://apiv4.tapechat.net/
+
+// ...</div><p><a href="/2021/07/30/tape_chat.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 07月30日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-07-30T00:00:00+08:00"></div>
+      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2021/06/15/review_physics.html"><h2 itemprop="headline" class="item__header">普通物理1期末速览</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody">写在前面：物理学的不好，这个笔记就当看个乐呵。这个是完全凭着个人感觉做的，而且写的很匆忙，估计总结的不全面。
+
+
+
+第一部分：振动与波
+
+1 简谐振动
+
+1.1 简谐振动中的运动学
+
+从受力到一般的动力学方程：
+
+
+  弹簧振子：$m\dfrac{d^2x}{dt^2}+kx=0\Rightarrow\dfrac{d^2x}{dt^2}+\dfrac{k}{m}x=0$
+  单摆：$ml\dfrac{d^2\theta}{dt^2}+mg\sin\theta=0\Rightarrow\dfrac{d^2\theta}{dt^2}+\dfrac{g}{l}\sin\theta=0$
+
+
+简谐振动中的动力学：$\dfrac{d^2A}{dt^2}+\omega^2 A=0$，其中$A$可以...</div><p><a href="/2021/06/15/review_physics.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 06月15日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-06-15T00:00:00+08:00"></div>
+      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2021/06/15/advance_algebra_miss.html"><h2 itemprop="headline" class="item__header">直击！高代奶人现场！</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody">奶人现场！赌狗来辣！
+
+
+
+1 线性变换
+
+1.1 线性变换的定义与刻画
+
+
+  线性变换的定义：判断一个变换是否是线性变换，简单的话其实一眼就能看出来，难一点的（尤其是定义在一个看上去花里胡哨的复杂的线性空间的）一定要看好定义！自身上的保线性的映射！
+  线性变换的刻画：基与线性变换。基的处理会比较灵活，如果考这方面（大概率）和线性空间的知识结合，比如说同构（我一定猜考同构！）
+  线性变换的运算：我估计这个不会明着考，毕竟这个东西实在太基础了！几乎没有哪个地方不渗透线性变换的运算
+
+
+1.2 线性变换的核与象
+
+写在前面：这个地方有着比较强的结构特征，后面频繁要用，尤其是和零化多项式那边结合着用！不过这方面的之后放在零化多项式那边再写！
+
+再提醒：维数公式只有在有限维才成立，和它有...</div><p><a href="/2021/06/15/advance_algebra_miss.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 06月15日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-06-15T00:00:00+08:00"></div>
+      </article></div>
+</div><div class="layout--home"><div class="pagination"><p>共计 13 篇文章，2 页。</p>
+    <div class="pagination__menu">
+      <ul class="menu menu--nowrap"><li><div class="button button--secondary button--circle disabled">
+            <i class="fas fa-angle-left"></i>
+          </div></li><li>
+              <div class="button button--primary button--circle focus"><span>1</span></div>
+            </li><li>
+                <a class="button button--secondary button--circle" href="/page2"><span>2</span></a>
+              </li><li><a class="button button--secondary button--circle" href="/page2">
+            <i class="fas fa-angle-right"></i>
+          </a></li></ul>
+    </div>
+  </div></div>
+<script>/*(function () {
+
+})();*/
+</script>
+
+
+
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小闰"><meta itemprop="url" content="/"><meta itemprop="description" content="慢慢来，不要怕。点心总是会有的。"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© 小闰的甜品站 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script>
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

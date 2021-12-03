@@ -1,0 +1,1298 @@
+<!DOCTYPE html><html lang="zh">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>欧氏空间中点列的极限论 - 小闰的甜品站</title>
+
+<meta name="description" content="这是一份尽量比较简短的笔记，用以补充复旦欧阳光中版数分格外简洁的点列极限论（…）。内容来自中科大版《数学分析教程》，个人很喜欢这本书，于是以这种方式分享出来。后续全部内容如无特别说明，均是建立在$n$维欧氏空间上的。本文档有PDF格式，请点击这里查看下载一些正题之前的说明这里主要是对$n$维欧氏空间做出一些基本的...">
+<link rel="canonical" href="http://localhost:4000/2021/09/24/EuclidPoints.html"><link rel="alternate" type="application/rss+xml" title="小闰的甜品站" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Your Site Description
+" href="/">小闰的甜品站</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>欧氏空间中点列的极限论</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/YHanchao/yhanchao.github.io/tree/master/_posts/2021-09-24-EuclidPoints.md">
+            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="欧氏空间中点列的极限论"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 09月24日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-09-24T00:00:00+08:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p>这是一份尽量比较简短的笔记，用以补充复旦欧阳光中版数分格外简洁的点列极限论（…）。内容来自中科大版《数学分析教程》，个人很喜欢这本书，于是以这种方式分享出来。</p>
+
+<p>后续全部内容如无特别说明，均是建立在$n$维欧氏空间上的。</p>
+
+<hr />
+
+<p>本文档有PDF格式，请点击这里查看<a href="https://yan-blog.oss-cn-beijing.aliyuncs.com/files/%E6%AC%A7%E6%B0%8F%E7%A9%BA%E9%97%B4%E4%B8%AD%E7%82%B9%E5%88%97%E7%9A%84%E6%9E%81%E9%99%90%E8%AE%BA.pdf">下载</a></p>
+
+<h1 id="一些正题之前的说明">一些正题之前的说明</h1>
+
+<p>这里主要是对$n$维欧氏空间做出一些基本的定义，因为大多数比较基础，所以就在这里单独列出来了</p>
+
+<ol>
+  <li>
+    <p><strong>内积</strong>：这部分的定义同高等代数中的定义，包括记号也是。设$\alpha$，$\beta\in\mathbf{R}^n$，记内积为$&lt;\alpha,\beta&gt;$；内积的性质参见高等代数。</p>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>距离</strong>：$\forall x\in \mathbf{R}^n$，定义距离$</td>
+          <td> </td>
+          <td>x</td>
+          <td> </td>
+          <td>=\sqrt{&lt;x,x&gt;}$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>球</strong>：以$\mathbf{a}$为球心，半径为$r$的球记为$B_r(\bm{a})={x\in\mathbf{R}^n:</td>
+          <td> </td>
+          <td>\bm{x}-\bm{a}</td>
+          <td> </td>
+          <td>&lt;r}$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>闭球</strong>：球与表面上的点的集合。$\bar{B}_r(\bm{a})={\bm{x}\in\mathbf{R}^n:</td>
+          <td> </td>
+          <td>\bm{x}-\bm{a}</td>
+          <td> </td>
+          <td>\leqslant r}$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+
+<h1 id="欧氏空间中点列的极限">欧氏空间中点列的极限</h1>
+
+<p>整个这一部分应当和实数列形成对应关系，其中大多数内容可以看作是数列极限的直接推广。这里许多内容会写的比较简单，有数分1基础的话理解起来应该难度不算太大。这里我们研究的点列是在$\mathbb{R}^n$空间中一般的点列${x_i}$而非在平面中的点列（事实上这里应该用粗体，但是由于本人比较懒所以就用普通印刷体来表示了，应该问题不大。</p>
+
+<h4 id="点列极限的原始定义">点列极限的原始定义</h4>
+
+<p>首先使用$\varepsilon-N$语言定义点列的极限。设${x_i}$是$\mathbb{R}^n$中的一个点列，$a\in\mathbb{R}^n$，若$\forall\varepsilon&gt;0$，$\exists N\in\mathbb{N}^*$，$\forall i&gt;N$时有
+\(||x_i-a||&lt;\varepsilon\) 则称$a$是$x_i$的极限，记作
+\(\lim_{i\to\infty}x_i=a\) 或 \(x_i\to a(i\to\infty)\)</p>
+
+<h4 id="点列的简单性质">点列的简单性质</h4>
+
+<p>同收敛数列一样，立即可以得到两条简单性质</p>
+
+<ul>
+  <li>
+    <p>若点列收敛，则极限唯一</p>
+  </li>
+  <li>
+    <p>收敛点列必有界</p>
+  </li>
+  <li>
+    <p>设$\lim_{i\to\infty}x_i=a$，$\lim_{i\to\infty}y_i=b$，$\lambda\in\mathbb{R}$，则$\lim_{i\to\infty}(x_i+y_i)=a+b$，$\lim_{i\to\infty}\lambda x_i=\lambda a$</p>
+  </li>
+</ul>
+
+<h4 id="按分量收敛">按分量收敛</h4>
+
+<p>设${x_i}$是$\mathbb{R}^n$中的一个点列，记
+\(x_i=(x_1^{(i)},x_2^{(i)},\ldots,x_n^{(i)})\)
+如果$\forall k=1,2,\ldots,n$，均有 \(\lim_{i\to\infty}x_k^{(i)}=a_k\)
+则点列收敛于$a=(a_1,a_2,\ldots,a_n)$。可以证明，点列按分量收敛当且仅当点列收敛。</p>
+
+<h4 id="cauchy收敛">Cauchy收敛</h4>
+
+<p>类似地，我们也可以得到Cauchy列与Cauchy收敛原理，首先我们来定义Cauchy列（基本列），再来在基本列上说明Cauchy收敛原理。</p>
+
+<p>设${x_i}$是$\mathbb{R}^n$中的一个点列，若$\forall\varepsilon&gt;0$，$\exists N\in\mathbb{N}^*$，$\forall i,j&gt;N$时有</p>
+
+\[||x_i-x_j||&lt;\varepsilon\]
+
+<p>则称${x_i}$是<strong>基本列</strong>。</p>
+
+<p>在定义了基本列之后，我们就可以接着来看Cauchy收敛原理，其表述为：${x_i}$是收敛点列，当且仅当${x_i}$是基本列。</p>
+
+<p>Cauchy收敛给出了一种在不知道极限的情况下判定点列收敛的一种方式，其证明可以利用按分量收敛这一定理来证明，下面我们将继续将数列极限中的一个常用结论迁移到点列上来。</p>
+
+<h4 id="bolzano-weierstrass定理">Bolzano-Weierstrass定理</h4>
+
+<p>任何有界点列存在收敛子列。</p>
+
+<p>这条定理与有界数列必有收敛子列非常相似，要证明这条定理，我们只需要利用按分量收敛直接转化为数列极限来做，过程非常简洁。</p>
+
+<p>但是需要注意，不是所有数列极限的定理都可以直接迁移到点列上，比如<strong>单调有界数列必有极限</strong>，在点列上我们难以给出一个良好定义的”单调递增的点列”（不过如果非要看作是坐标按分量单调递增的话也很容易给出类似的结论就是了）</p>
+
+<h1 id="开集与闭集">开集与闭集</h1>
+
+<p>从这一部分开始，讨论的话题开始类似于数分1中的实数基本定理，我们尝试刻画一个高维度的”区间”，在其基础上研究其有没有类似实数轴一样连续的性质。同时，在一元函数的研究中，我们知道了闭区间上的函数一致连续，我们自然会想看看多变量函数有没有、什么情况下会有这些性质。不过作为开始，我们首先来看一看点的集合。</p>
+
+<h2 id="开集及其性质">开集及其性质</h2>
+
+<p>为了定义开集，我们首先从点入手，进一步定义开集这一点集。</p>
+
+<h4 id="内点">内点</h4>
+
+<p>设$E\subset\mathbb{R}^n$，$a\in E$，如果<strong>存在</strong>$r&gt;0$，使得$B_r(a)\subset E$，则称$a$是$E$的一个内点</p>
+
+<h4 id="内部">内部</h4>
+
+<p>点集$E$的全体内点组成的集合成为$E$的内部，记作$E^o$</p>
+
+<h4 id="开集">开集</h4>
+
+<p>如果$E=E^o$，则$E$称为一个开集</p>
+
+<p>为了加深了解，这里举几个简单的例子：</p>
+
+<ul>
+  <li>
+    <p>$\mathbb{R}^n$与$\varnothing$是开集</p>
+  </li>
+  <li>
+    <p>$\mathbb{R}^n$中挖去任意一个点之后是开集</p>
+  </li>
+  <li>
+    <p>$\mathbb{R}^2$中${(x,y):y&gt;0}$是一个开集</p>
+  </li>
+  <li>
+    <p>数轴中任意一个开区间都是$\mathbb{R}$中的开集</p>
+  </li>
+  <li>
+    <p>$E^o$是开集</p>
+  </li>
+</ul>
+
+<h4 id="开集的重要性质">开集的重要性质</h4>
+
+<p>下面这两个性质是关于开集运算之后得到的新的点集的性质，这几条性质在后面也会有用到。</p>
+
+<ol>
+  <li>
+    <p>任意多个开集之并是开集</p>
+  </li>
+  <li>
+    <p>有限个开集之交是开集</p>
+  </li>
+</ol>
+
+<p>这两个定理都可以利用开集的定义进行证明，这里主要想来说一说为什么第二个性质要求的是<strong>有限个</strong>而不是任意多个。举一个反例，我们考察下面这个无穷个开集的交
+\(\bigcap_{i=1}^\infty B_{\frac{1}{i}}(a)=\{a\}\)
+而${a}^o=\varnothing$，不是开集，这就找到了一个反例。</p>
+
+<h2 id="闭集及其性质">闭集及其性质</h2>
+
+<p>闭集的定义可以直接由开集得到，就是说可以直接这样表述</p>
+
+<h4 id="闭集的定义">闭集的定义</h4>
+
+<p>设$E\subset\mathbb{R}^n$，若$E^c$是开集，则$E$是闭集。</p>
+
+<p>这样定义实际上告诉了开集与闭集的一种转化关系，再利用De
+Morgan定律（对偶定理）我们就可以得到许多闭集的例子，这里就不一一列举了。同样利用这条定理我们也立即得到关于闭集的重要性质</p>
+
+<ol>
+  <li>
+    <p>任意多个闭集之交是闭集</p>
+  </li>
+  <li>
+    <p>有限个闭集之并是闭集</p>
+  </li>
+</ol>
+
+<h3 id="闭集的刻画">闭集的刻画</h3>
+
+<p>这里我们试着不使用开集来刻画一个闭集。在建立开集的概念时，我们引入了开集内部的点的一些定义，类似的我们也可以描述闭集中的一些点的性质，下面我们沿着这条思路建立定义。</p>
+
+<h4 id="空心球">空心球</h4>
+
+<p>$B_r(\breve{a})=B_r(a)-{a}$，就是在原本球的定义上去掉了球心。</p>
+
+<h4 id="聚点">聚点</h4>
+
+<p>设$E\subset\mathbb{R}^n$，$a\in E$，$\forall r&gt;0$，$B_r(\breve{a})\cap E\neq\varnothing$，则称$a$为$E$中的聚点（也叫极限点）</p>
+
+<p>聚点不一定是$E$内部的点，比如对于实数轴上的开区间而言，其端点可以验证是聚点，但是显然不是区间内的点</p>
+
+<h4 id="孤立点">孤立点</h4>
+
+<p>如果$E$中的点不是聚点，则称为孤立点</p>
+
+<h4 id="导集">导集</h4>
+
+<p>点集$E$的全体聚点构成的点集，记作$E’$</p>
+
+<h4 id="闭包">闭包</h4>
+
+<p>$\bar{E}=E\cup E’$（这个符号记得和概率论中补集区分，这里不是补集！）</p>
+
+<p>现在我们已经对$E$中的许多点及其构成的点集做出了定义，下面我们来刻画闭集</p>
+
+<h4 id="闭集的等价刻画">闭集的等价刻画</h4>
+
+<p>$E$是一个闭集，当且仅当$E’\subset E$，即$\bar{E}=E$</p>
+
+<h4 id="推论">推论</h4>
+
+<p>$E$是一个闭集，当且仅当$E$中的任何收敛点列的极限均在$E$中。同其他带有”任意”的定理一样，与其证明”任意”性，不妨利用其反面来推出某些结论不成立。</p>
+
+<h3 id="闭集的简单性质">闭集的简单性质</h3>
+
+<p>这里仅对一些性质进行列举，必要时稍微提几句。</p>
+
+<ol>
+  <li>
+    <p>$E’$与$\bar{E}$都是闭集</p>
+  </li>
+  <li>
+    <p>$E^o$是含于$E$内的最大开集，$\bar{E}$是包含$E$的最小闭集</p>
+  </li>
+</ol>
+
+<h4 id="边界">边界</h4>
+
+<p>下面是对点集的”边”的一些刻画。设$E\subset\mathbb{R}^n$，我们称$(E^c)^o$中的点称为<strong>外点</strong>，外点的全体称为<strong>外部</strong>，既不是内点也不是外点的点称为<strong>边界点</strong>，边界点的全体称为$E$的<strong>边界</strong>，记作$\partial E$。这样一来，对于任意给定的$E$，其中的每个点都可以唯一划分到三类点当中，也就是说
+\(E^o\bigcup (E^c)^o \bigcup \partial E = \mathbb{R}^n\)
+且这三个集合任意两者的交集均为空集。</p>
+
+<h4 id="闭集套定理">闭集套定理</h4>
+
+<p>在实数中我们有闭区间套定理，其中要求区间长度要单调递减。现在我们先来找到可以刻画某个闭集的”区间长度”的量。</p>
+
+<p>我们不妨定义闭集的<strong>直径</strong>，记
+\(\text{diam}\,(E)=\sup\{||x-y||:x,y\in E\}\)
+在定义了直径之后，我们可以给出闭集套定理的表述。设${E_i}$（$E_i\neq\varnothing$）是闭集列，且$E_1\supset E_2\supset\ldots$，若
+\(\lim_{i\to\infty}\text{diam}\,(E_i)=0\)
+则$\bigcap_{i=1}^\infty E_i$只含唯一一个点。</p>
+
+<p>这一定理的证明可以使用Cauchy收敛原理（放缩为直径），这条定理同实数基本定理中的闭区间套定理一样刻画了欧氏空间的连续性。</p>
+
+<h1 id="列紧集与紧致集">列紧集与紧致集</h1>
+
+<p>这一部分研究的是<strong>有界闭集</strong>具有的一些性质。其中的定理主要对应于有限覆盖定理。由于这一部分的一些内容并不是较为直观的，所以其中会涉及一些具体的证明。</p>
+
+<h2 id="列紧集">列紧集</h2>
+
+<h4 id="列紧集的定义">列紧集的定义</h4>
+
+<p>设$E\subset \mathbb{R}^n$，如果$E$中任意点列均有子列收敛于$E$中的一点，则$E$称为列紧集。</p>
+
+<p>这个概念简单查询了一下似乎是很代数的，是关于度量空间（欧式空间只是其中的一种）中某些无穷集的性质，这里就不深究其本源了。不过这个定义似乎和聚点有很大的关系，下面的定理将说明列紧集与有界闭集是一回事。</p>
+
+<h4 id="定理">定理</h4>
+
+<p>$\mathbb{R}^n$中的集合$E$为列紧集的充分必要条件是$E$是有界闭集。</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>证明</strong>：<em>必要性。</em>如果$E$是无界的，那么可以构造任意子列均发散的点列，如点列${x_i}$满足$</td>
+      <td> </td>
+      <td>x_i</td>
+      <td> </td>
+      <td>&gt;i$，显然其没有收敛子列，故而有列紧集定义知此时$E$必然不是列紧集。如果$E$不是闭集，那么可以构造另外一个点列${x_i}$，使得$x_i\to a$（$i\to\infty$），且$a\notin E$，矛盾。故而列紧集是有界闭集</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>充分性。</em>对于有界闭集，由Bolzano-Weierstrass定理知其是一个列紧集。</p>
+
+<h2 id="紧致集">紧致集</h2>
+
+<h3 id="紧致集的定义">紧致集的定义</h3>
+
+<p>百度百科中对代数上紧致集的定义是：紧致集是拓扑空间的一类重要子集，亦称紧集。称A为紧集，若A的任意开覆盖包含A的有限开覆盖。有限维赋范线性空间中的有界闭集是紧集。</p>
+
+<p>不过我们并不需要了解那么多代数上的知识，下面我们先引入$\mathbb{R}^n$上的开覆盖，进而说明紧致集的定义。</p>
+
+<h4 id="开覆盖">开覆盖</h4>
+
+<p>设$E\subset \mathbb{R}^n$，$\mathcal{A}={G_\alpha}$是$\mathbb{R}^n$中的一个开集族。如果
+\(E\subset\bigcup_\alpha G_\alpha\)
+则称开集族$\mathcal{A}$覆盖了$E$，即是一个开覆盖。</p>
+
+<h4 id="紧致集-1">紧致集</h4>
+
+<p>设$E\subset \mathbb{R}^n$，若能从$E$的<strong>任意一个</strong>开覆盖中选出有限个开集，它们仍能组成$E$的一个开覆盖，则称$E$是一个紧致集。</p>
+
+<h3 id="紧致集的特征">紧致集的特征</h3>
+
+<p>这一部分要证明一个主要定理，由于过程比较长所以单独列出来一个部分。这一部分我们要证明的主要定理是</p>
+
+<h4 id="定理-1">定理</h4>
+
+<p>$E\subset \mathbb{R}^n$为一个紧致集的充分必要条件是$E$是有界闭集。</p>
+
+<h4 id="证明">证明</h4>
+
+<p><em>必要性。</em>设$E$是紧致集，考虑以原点为球心，$m\in\mathbb{N}^<em>$为半径的球，由紧致集的定义知
+\(E\subset\mathbb{R}^n=\bigcup_{m=1}^\infty B_m(\bm{0})\)
+故而$\mathcal{A}={B_m(\bm{0}):m\in\mathbb{N}^</em>}$是$E$的一个开覆盖，则可以从中找到有限个开集
+\(\{B_{k_1}(\bm{0}), B_{k_2}(\bm{0}),\ldots,B_{k_t}(\bm{0})\}\)
+覆盖$E$，则由开集的构造方法知有界性得证。</p>
+
+<p>下面再证$E$是一个闭集，我们来证$E^c=F$是一个开集。任取$p\in F$，对于每一个$q\in E$，显然有$p\neq q$，故而存在$r&gt;0$，使得$B_r(q)\cap B_r(p)=\varnothing$。这样对于每一个$q$我们都构造了一个开集，显然它们的并是一个开覆盖，由紧致集知存在有限个开集可以覆盖$E$。取这些有限个开集中$r$最小的那个，记球的半径为$r_0$，则$E\cap B_{r_0}(p)=\varnothing$。又由$p$是$F$内任取的，故$p$均是$F$的内点，这样就得到了$F$是一个开集，故$E$是闭集。</p>
+
+<p>必要性得到了证明。</p>
+
+<p><em>充分性。</em>用反证法。设$E$是有界闭集但不是紧致集，则存在某个开区间族${G_\alpha}$，它是$E$的一个开覆盖，但是其任意有限子集均不可有限覆盖$E$。</p>
+
+<p>设$E$中的点的第$i$个分量的坐标范围为$[a_0^{(i)}, b_0^{(i)}]$，那么先把这一闭集平均划分为$2^n$份，记作$K_i$（$i=1,2,\ldots,2^n$）（<em>这一步就是说把每个分量的区间都平均分为两半，比如平面的话就是横一刀竖一刀切成四份</em>），则至少有一个$K_i$不可以被有限覆盖。之后重复上述过程，最终由Bolzano-Weierstrass定理知最终有${\xi}$不可被有限覆盖，这样就导出了矛盾</p>
+
+<p>（<em>上面这个过程写的有些跳步，可以按照数分1中的过程类似地推广到这里</em>）</p>
+
+<p>总的来说，这一节我们说明了在$\mathbb{R}^n$中，有界闭集、列紧集、紧致集等价。</p>
+
+<h1 id="区域与连通性">区域与连通性</h1>
+
+<p>这里刻画的是”连成一片的”集合。</p>
+
+<h4 id="连通集">连通集</h4>
+
+<p>设$E\subset \mathbb{R}^n$，如果$E$的任意分解式$E=A+B$（$A\neq\varnothing$，$B\neq\varnothing$，$A\cap B=\varnothing$），使得以下两式
+\(A\cap B'\neq\varnothing\qquad A'\cap B\neq \varnothing\)
+中至少有一个成立，则称$E$是连通集。</p>
+
+<p>这个定义就是说把$E$分解为两个不相交的集合的并，其中至少有一个包含另一个的聚点，这样$E$才是连通的（<em>可以想象一下！</em>），注意这个定义里并没有说$E$是一个开集。根据这个定义我们可以得到下面的等价刻画：</p>
+
+<h4 id="等价刻画">等价刻画</h4>
+
+<p><strong>开集</strong>$E$是连通集的充分必要条件是$E$不能分解为两个不相交的非空开集之并。</p>
+
+<h4 id="区域">区域</h4>
+
+<p>连通的开集称为<strong>区域</strong>；区域的闭包称为<strong>闭区域</strong></p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2021-09-24T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2021/09/15/wechat.html">甜品站微信分站开张！</a></div><div class="next"><span>下篇</span><a href="/2021/10/03/JacobiCalculus.html">Jacobi矩阵与多元函数微分</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小闰"><meta itemprop="url" content="/"><meta itemprop="description" content="慢慢来，不要怕。点心总是会有的。"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© 小闰的甜品站 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

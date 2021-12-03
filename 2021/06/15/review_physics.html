@@ -1,0 +1,1345 @@
+<!DOCTYPE html><html lang="zh">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>普通物理1期末速览 - 小闰的甜品站</title>
+
+<meta name="description" content="写在前面：物理学的不好，这个笔记就当看个乐呵。这个是完全凭着个人感觉做的，而且写的很匆忙，估计总结的不全面。第一部分：振动与波1 简谐振动1.1 简谐振动中的运动学从受力到一般的动力学方程：  弹簧振子：$m\dfrac{d^2x}{dt^2}+kx=0\Rightarrow\dfrac{d^2x}{dt^2}+...">
+<link rel="canonical" href="http://localhost:4000/2021/06/15/review_physics.html"><link rel="alternate" type="application/rss+xml" title="小闰的甜品站" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Your Site Description
+" href="/">小闰的甜品站</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>普通物理1期末速览</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/YHanchao/yhanchao.github.io/tree/master/_posts/2021-06-15-review_physics.md">
+            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="普通物理1期末速览"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 06月15日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-06-15T00:00:00+08:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p>写在前面：物理学的不好，这个笔记就当看个乐呵。这个是完全凭着个人感觉做的，而且写的很匆忙，估计总结的不全面。</p>
+
+<hr />
+
+<h1 id="第一部分振动与波">第一部分：振动与波</h1>
+
+<h2 id="1-简谐振动">1 简谐振动</h2>
+
+<h3 id="11-简谐振动中的运动学">1.1 简谐振动中的运动学</h3>
+
+<p>从受力到一般的动力学方程：</p>
+
+<ul>
+  <li>弹簧振子：$m\dfrac{d^2x}{dt^2}+kx=0\Rightarrow\dfrac{d^2x}{dt^2}+\dfrac{k}{m}x=0$</li>
+  <li>单摆：$ml\dfrac{d^2\theta}{dt^2}+mg\sin\theta=0\Rightarrow\dfrac{d^2\theta}{dt^2}+\dfrac{g}{l}\sin\theta=0$</li>
+</ul>
+
+<p>简谐振动中的动力学：$\dfrac{d^2A}{dt^2}+\omega^2 A=0$，其中$A$可以表示任意物理量</p>
+
+<p>方程$\dfrac{d^2x}{dt^2}+\omega_0^2 x=0$的解（运动学方程）：$x=A\cos(\omega_0t+\alpha)$</p>
+
+<ul>
+  <li>方程的特点：关于$t$的三角函数——从三角函数的几何表示上：圆周向量在横轴的投影的数量；求解上：三个参量，需要三个已知条件</li>
+  <li>和$\omega_0$有关的概念：周期、频率、圆频率</li>
+  <li>$A$：振幅</li>
+  <li>$\alpha$：相位、初相位、相位差（同步调、反步调、超前、落后）</li>
+  <li>运动学方程的共性：求导得到$v$与$a$</li>
+</ul>
+
+<h3 id="12-简谐振动中的动力学">1.2 简谐振动中的动力学</h3>
+
+<p>力的关系：形如$F=-kx$</p>
+
+<p>能量关系：总能量是动能和势能之和</p>
+
+<p>对于方程$x=A\cos(\omega_0t+\alpha)$</p>
+
+<ul>
+  <li>$E_k=\dfrac{1}{2}m(\dfrac{dx}{dt})^2=\dfrac{1}{2}kA^2\sin^2(\omega_0t+\alpha)$</li>
+  <li>$E_p=\dfrac{1}{2}kx^2=\dfrac{1}{2}kA^2\cos^2(\omega_0t+\alpha)$</li>
+  <li>$E=E_k+E_p=kA^2$</li>
+</ul>
+
+<h3 id="13-运动的合成">1.3 运动的合成</h3>
+
+<p>运动的合成可以视作是两个圆周上的向量做加法，之后再投影到横轴上。这在记忆相同频率的叠加较为方便！实际上就成了一个简单的几何问题，很快就能求解出来</p>
+
+<h4 id="131-相同频率">1.3.1 相同频率</h4>
+
+<p>分运动：$x_1=A_1\cos(\omega_0t+\alpha_1)$，$x_2=A_1\cos(\omega_0t+\alpha_2)$</p>
+
+<p>和运动：$x=A\cos(\omega_0t+\alpha)$</p>
+
+<ul>
+  <li>$A=\sqrt{A_1^2+A_2^2+2A_1A_2\cos(\alpha_1-\alpha_2)}$</li>
+  <li>$\cos \alpha=\dfrac{A_1\cos\alpha_1+A_2\cos\alpha_2}{A}$</li>
+  <li>$\sin \alpha=\dfrac{A_1\sin\alpha_1+A_2\sin\alpha_2}{A}$</li>
+</ul>
+
+<p>显然的结果：</p>
+
+<ul>
+  <li>同步调和振动最大（相长干涉），反步调最小（相消）</li>
+</ul>
+
+<h4 id="132-不同频率与拍">1.3.2 不同频率与拍</h4>
+
+<p>分运动：$x_1=A\cos(\omega_1t)$，$x_2=A\cos(\omega_2t)$</p>
+
+<p>和运动（和差化积）：$x=2A\cos(\dfrac{\omega_1-\omega_2}{2}t)\cos(\dfrac{\omega_1+\omega_2}{2}t)$</p>
+
+<p>明显的结果：</p>
+
+<ul>
+  <li>短时间观察，可认为是频率为$\dfrac{\omega_1+\omega_2}{2}$的振动</li>
+  <li>长时间观察，可认为振幅是周期性变化的</li>
+</ul>
+
+<p><strong>定义1（拍）</strong>：振幅周期变化的现象称为<strong>拍</strong></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>定义2（拍的圆频率）</strong>：$\omega=</td>
+      <td>\omega_1-\omega_2</td>
+      <td>$，注意这个下面没有除2</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>定义3（拍的频率）</strong>：$f=</td>
+      <td>f_1-f_2</td>
+      <td>$</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="133-同频率不同方向">1.3.3 同频率不同方向</h4>
+
+<p>几个比较好拿到的结果：</p>
+
+<ul>
+  <li>同步调、反步调：和运动在线段上（几何观察）</li>
+  <li>相位差$\dfrac{\pi}{2}$的：轨迹是椭圆（个人觉得这种用参数方程好理解），超前或落后转的方向不一样</li>
+  <li>一般情况：普通的椭圆</li>
+</ul>
+
+<h4 id="134-不同频率不同方向">1.3.4 不同频率不同方向</h4>
+
+<p>“李萨如”图，大概考试不考</p>
+
+<h3 id="14-阻尼振动">1.4 阻尼振动</h3>
+
+<p>已知不考计算，所以只列举一些结论</p>
+
+<p>阻尼运动的分类与性质：</p>
+
+<ul>
+  <li>欠阻尼振动：振幅不断缩小的往复运动，运动的圆频率不变（相当于一个三角函数上面成乘了递减的指数函数，感觉和拍有点像）</li>
+  <li>过阻尼运动（名字不叫振动，因为真的没振动）：不往复运动，只有衰减；先快衰减，后慢衰减</li>
+  <li>临界阻尼：只衰减不震动，且固有原频率一定时临界阻尼衰减更快</li>
+</ul>
+
+<p>受迫振动（只讨论欠阻尼下的，另外两个不一定振）：</p>
+
+<ul>
+  <li>运动学方差是<strong>衰减解+驱动力的周期运动解</strong>，稳定运动状态下达到稳定振动（和驱动力相同频率）</li>
+  <li>驱动力频率和固有频率相同时振幅最大</li>
+</ul>
+
+<h2 id="2-波动">2 波动</h2>
+
+<h3 id="21-波动的相关定义与简单性质">2.1 波动的相关定义与简单性质</h3>
+
+<p>机械波：波源机械振动+介质传播</p>
+
+<p>相关定义：波面、波前、波射线；（振动与传播方向）横波、纵波；（波面）平面波、球面波</p>
+
+<p>液体和气体内部不能传播横波，只能传播纵波；固体既可以传播横波也可以传播纵波；水表面的波既不是纵波也不是横波</p>
+
+<h3 id="22-波的运动学方程">2.2 波的运动学方程</h3>
+
+<p>$t$时刻时平衡位置在$x$点处的质元的运动学方程为$\xi=\xi(x,t)$</p>
+
+<p><strong>定义4（行波）</strong>：随时间的推移，波形图不断地向某一个方向推进的波</p>
+
+<p><strong>性质</strong>：一维介质中，运动学方程形如$\xi=f(x-vt)$的波是行波，其中$v$表示波速，$v&gt;0$表示向正方向传播</p>
+
+<h3 id="23-平面简谐波的波方程运动学">2.3 平面简谐波的波方程（运动学）</h3>
+
+\[y=A\cos(\omega(t-\dfrac{x}{}v))=A\cos(\omega t -\frac{\omega}{v}x)=A\cos(\omega t-kx)\]
+
+<p>其中$k=\dfrac{\omega}{v}$</p>
+
+<p><strong>定义5（圆波数）</strong>：$k$——对标<strong>圆频率</strong>$\omega$</p>
+
+<p><strong>定义6（波长）</strong>：$\lambda=\dfrac{2\pi}{k}$</p>
+
+<p><strong>定义7（波数）</strong>：$n=\dfrac{1}{\lambda}$</p>
+
+<p>一般的运动学方程：$y=A\cos(\omega t-kx+\alpha)$，这个方程中有<strong>四个未知量</strong>，故最少需要四个条件——可以说相比振动就是多了一个波速（相速度）</p>
+
+<p><strong>性质</strong>：$u=\dfrac{\partial y}{\partial t}$，$x$处质元的速度，再求一次偏导就是加速度；</p>
+
+<p>$\dfrac{\partial y}{\partial x}$：$t$时刻$x$处波形图的斜率</p>
+
+<h3 id="24-平面简谐波的波动方程动力学">2.4 平面简谐波的波动方程（动力学）</h3>
+
+<p><strong>基本假设</strong>：弦的振幅足够小！（所以后面波的叠加只有在振幅小的时候才有线性性）</p>
+
+<p><strong>定理1（弦的波动方程）</strong>：\(\rho\dfrac{\partial^2 y}{\partial t^2}=F_T\dfrac{\partial ^2y}{\partial x^2}\Longleftrightarrow\dfrac{\partial^2 y}{\partial t^2}=\dfrac{F_T}{\rho}\dfrac{\partial ^2y}{\partial x^2}\)</p>
+
+<p><strong>性质1</strong>：$v^2=\sqrt{\dfrac{F_T}{\rho}}$</p>
+
+<p><strong>性质2</strong>：行波$\xi=f(x-vt)$是波动方程的解</p>
+
+<h3 id="25-平面简谐波的能量关系">2.5 平面简谐波的能量关系</h3>
+
+<p><strong>定义8（能量密度）</strong>：单位长度的能量$\varepsilon(x,t)=\dfrac{dE}{dx}$</p>
+
+\[dE=dE_k+dE_p\]
+
+\[dE_k=\dfrac{1}{2}\rho(\dfrac{\partial y}{\partial t})^2dx\Longrightarrow\dfrac{dE_k}{dx}=\dfrac{1}{2}\rho(\dfrac{\partial y}{\partial t})^2\]
+
+\[dE_p=\dfrac{1}{2}F_T(\dfrac{\partial y}{\partial x})^2dx\Longrightarrow\dfrac{dE_k}{dx}=\dfrac{1}{2}F_T(\dfrac{\partial y}{\partial x})^2\]
+
+\[\dfrac{dE}{dx}=\dfrac{1}{2}[\rho(\dfrac{\partial y}{\partial t})^2+F_T(\dfrac{\partial y}{\partial x})^2]\]
+
+<p>如果介质中<strong>只有行波</strong>（注意条件），则带入波动方程，得：</p>
+
+\[\rho(\dfrac{\partial y}{\partial t})^2=F_T(\dfrac{\partial y}{\partial x})^2\]
+
+<p>故\(\varepsilon(x,t)=\rho (\dfrac{\partial y}{\partial t})^2=\rho A^2\omega^2\sin^2(\omega t-kx)\)</p>
+
+<p>故\(\bar{\varepsilon}=\dfrac{1}{T}\int_0^T\varepsilon dt=\dfrac{1}{2}\rho A^2\omega^2\)</p>
+
+\[\bar{\varepsilon}'=\dfrac{1}{\lambda}\int_0^\lambda\varepsilon dx=\dfrac{1}{2}\rho A^2\omega^2\]
+
+<p><strong>定义9（能流）</strong>：单位时间流过的能量$I(x,t)=\dfrac{dE}{dt}=\dfrac{dE}{dx}\dfrac{dx}{dt}=\varepsilon v$</p>
+
+<h3 id="27-波的反射和透射">2.7 波的反射和透射</h3>
+
+<p>直接摆结论：</p>
+
+<p>入射波：$\xi_i=A_i\cos(\omega_t-k_ix)$</p>
+
+<p>反射波：$\xi_r=A_r\cos(\omega+k_ix+\alpha_r)$，注意由于是在同一介质里面，所以$k$不变，由于波源相同所以$\omega$不变；<strong>注意$k_i$的符号</strong></p>
+
+<p>投射波：$\xi_t=A_t\cos(\omega-k_tx)$，由于波不能断开，所以初相位是一样的</p>
+
+<p>这样待确定的就是：$A_i,A_t,k_t,\alpha_r$四个量（由于$k_t$是介质决定的，所以要拿到那个量需要研究投射介质，不是入射方能决定的，所以说是只要讨论3个量）</p>
+
+<p><strong>定义10（波阻）</strong>：$Z=\rho v$</p>
+
+<p>个人感觉这个最多就是考自由端和固定端，主要结果有点懒得写</p>
+
+\[\alpha_r=\begin{cases}0,&amp;Z_1&gt;Z_2\\\pi,&amp;Z_1&lt;Z_2\end{cases}\]
+
+\[A_r=|\dfrac{Z_1-Z_2}{Z_1+Z_2}|\]
+
+\[A_t=\dfrac{2Z_1}{Z_1+Z_2}\]
+
+<h3 id="28-波的叠加驻波">2.8 波的叠加、驻波</h3>
+
+<p>线性戒指微小振幅下线性叠加</p>
+
+<p>波的干涉现象（频率一样）：本质可以看作是叠加处振动的合成，一般情况下当作振动处理就好，如果初相位相同：</p>
+
+<ul>
+  <li>波程差是半波长的偶数倍：加强</li>
+  <li>奇数倍：减弱</li>
+</ul>
+
+<p>驻波：和干涉类似，又不太像！干涉说的是一个质元处的状态，而驻波说的是叠加的波总体的状态。</p>
+
+<p><strong>定义11（驻波）</strong>：<strong>振幅相同</strong>、<strong>传播方向相反</strong>的两列简谐<strong>相干波</strong>叠加得到的波</p>
+
+<p>$\xi_1=A\cos(\omega t-kx)$，$\xi_2=A\cos(\omega t+kx)$</p>
+
+<p>$\xi=2A\cos (kx)\cos (\omega t)$</p>
+
+<p>把$2A\cos (kx)$整体看作振幅，就比较容易得到波腹（振幅最大的）与波节（振幅最小的）</p>
+
+<h3 id="29-多普勒效应">2.9 多普勒效应</h3>
+
+<p>波与观察者相向而行，观察者收到两个波面的时间间隔：</p>
+
+\[T'=\dfrac{\lambda-v_{\text{源}}T}{v+v_{\text{观}}}=\dfrac{v-v_{\text{源}}}{v+v_{\text{观}}}T\]
+
+<h1 id="第二部分热学">第二部分：热学</h1>
+
+<h2 id="3-热学导论">3 热学导论</h2>
+
+<p>研究方法：宏观（热力学）、微观（统计物理）</p>
+
+<h3 id="31-热学导论导论">3.1 热学导论导论</h3>
+
+<p><strong>热力学第负一定律</strong>：孤立系经足够长的时间会达到热力学平衡态。</p>
+
+<p>孤立系、平衡态是理想模型；判断平衡态：系统内部各部分、系统与外界无宏观热流与物质流</p>
+
+<p><strong>状态函数</strong>：平衡态下的宏观物理量具有确定的数值，这些描述平衡态的物理量称为状态参量</p>
+
+<p><strong>热力学第零定律</strong>：如果两个系统同时与第三个系统达到平衡，则这两个系统也处于热平衡。且出于热平衡的系统<strong>具有相同的温度</strong></p>
+
+<h3 id="32-温度与测温属性">3.2 温度与测温属性</h3>
+
+<ol>
+  <li>经验温标：利用测温物质的测温属性，需要：测温物质（酒精、水银）、温度参考点（怎么叫零度）、规定测温属性变化规律（线性）</li>
+  <li>理想气体温标：测温属性（$PV\propto T$），参考点（水的三相点）——实际气体极稀薄可视为理想气体，温度过低会液化</li>
+  <li>绝对温标：测温属性（热力学第二定律）</li>
+</ol>
+
+<h3 id="33-理想气体状态方程">3.3 理想气体状态方程</h3>
+
+<h4 id="331-化学纯">3.3.1 化学纯</h4>
+
+<p>$pV=\nu RT$，普适气体常数$R=8.31(441)\text{J}\cdot\text{mol}^{-1}\cdot\text{K}^{-1}$</p>
+
+<p>$pV=N\dfrac{R}{N_A}T=NkT$，玻尔兹曼常量$k=1.38\times 10^{-23}\text{J}\cdot\text{K}^{-1}$</p>
+
+<p>$p=nkT$，$n$是分子数密度</p>
+
+<h4 id="332-混合气体">3.3.2 混合气体</h4>
+
+<p>$\sum p_iV=\sum \nu_iRT$</p>
+
+<h3 id="34-理想气体的压强与温度">3.4 理想气体的压强与温度</h3>
+
+<p>前提假设：气体可视为质点、除短暂的碰撞外无相互作用、碰撞完全弹性、平衡态、忽略重力、各向同性（向各方向运动概率相等）</p>
+
+<p>$\bar{v_x}=\bar{v_y}=\bar{v_z}=0$</p>
+
+<p>$\bar{v_x^2}=\bar{v_y^2}=\bar{v_z^2}=\dfrac{1}{3}\bar{v^2}$</p>
+
+<p><strong>定理1：压强</strong>：$p=\dfrac{1}{3}mn\bar{v^2}$</p>
+
+<p>这是第二个描述，第一个宏观描述$p=nkT$</p>
+
+<p><strong>推论1</strong>：$\bar{\varepsilon_k}=\dfrac{1}{2}m\bar{v^2}\Rightarrow p=\dfrac{2}{3}n\bar{\varepsilon_k}$</p>
+
+<p><strong>推论2</strong>：$p=nkT\Rightarrow \bar{v^2}=\dfrac{3kT}{m}$</p>
+
+<p><strong>推论3</strong>：$\bar{\varepsilon_k}=\dfrac{3}{2}kT$</p>
+
+<h2 id="4-平衡态理想气体统计规律">4 平衡态理想气体统计规律</h2>
+
+<h3 id="41-概率与概率密度函数">4.1 概率与概率密度函数</h3>
+
+<p>$P(v_1\sim v_2)=\int_{v_1}^{v_2}f(v)dv=\dfrac{\Delta N}{N}$</p>
+
+<p>性质：</p>
+
+<ul>
+  <li>$\int_0^\infty f(v)dv=1$</li>
+  <li>$f(v)\geqslant 0$</li>
+  <li>$f(v)dv=\dfrac{dN}{N}$</li>
+  <li>$\bar{v}=\int_0^\infty vf(v)dv$</li>
+  <li>$\bar{g(v)}=\int_0^\infty g(v)f(v)dv$</li>
+</ul>
+
+<h3 id="42-麦克斯韦速率分布律">4.2 麦克斯韦速率分布律</h3>
+
+<p><strong>速率</strong>分布：\(f(v)=4\pi\left(\dfrac{m}{2\pi kT}\right)^{3/2}e^{-\frac{mv^2}{2kT}}v^2\)</p>
+
+<ul>
+  <li>极值点（最概然速率）：$v_p$，满足$\dfrac{1}{2}mv_p^2=kT$</li>
+  <li>极值：$f(v_p)$</li>
+</ul>
+
+<p>计算：积分表$I(n,\lambda)=\int_0^\infty x^ne^{-\lambda x}dx$</p>
+
+<p><img src="https://yan-blog.oss-cn-beijing.aliyuncs.com/images/study/posts/%E6%99%AE%E7%89%A9%E7%A7%AF%E5%88%86%E8%A1%A8.png" alt="积分表" /></p>
+
+<p><strong>速度分量</strong>分布：$F(v_\alpha)=\left(\dfrac{m}{2\pi kT}\right)^{1/2}e^{-\frac{mv_\alpha^2}{2kT}}$</p>
+
+<p><strong>速度</strong>分布：$F(v)=\left(\dfrac{m}{2\pi kT}\right)^{3/2}e^{-\frac{m(v_x^2+v_y^2+v_z^2)}{2kT}}$</p>
+
+<h2 id="5-热力学第一定律">5 热力学第一定律</h2>
+
+<p><strong>定理1（热力学第一定律）</strong>：$Q=\Delta U+A$</p>
+
+<p>其中$Q$是系统吸热，$\Delta U$是内能增量，$A$是<strong>系统对外做功</strong>。$U$是状态函数，其大小只和状态有关，故而变化量与过程无关，只与初末状态有关；$Q$大于0系统吸热</p>
+
+<h3 id="51-准静态过程中的体积功">5.1 准静态过程中的体积功</h3>
+
+<p>准静态过程也是一个理想模型</p>
+
+<p>$A=\int_{V_1}^{V_2} pdV$</p>
+
+<ul>
+  <li>等体过程$dV=0$，故$A=0$，$Q=\Delta U$</li>
+  <li>等压过程$p$为常数，故$A=p\Delta V$，$Q=\Delta (U+pV)=\Delta H$</li>
+</ul>
+
+<h3 id="52-理想气体热容量">5.2 理想气体热容量</h3>
+
+<p><strong>定义1（热容量）</strong>：$C=\dfrac{dQ}{dT}$</p>
+
+<p>这个定义给了求吸热的另一个解法：$Q=\int CdT$</p>
+
+<p><strong>定理2（焦耳定理）</strong>：理想气体内能<strong>只与温度有关</strong>，$U=U(T)$</p>
+
+<p><strong>推论1</strong>：理想气体的焓只与温度有关</p>
+
+<p><strong>推论2</strong>：$C_p=\dfrac{dH}{dT}=\dfrac{d(U+pV)}{dT}=\dfrac{dU}{dT}+\nu R=C_V+\nu R$</p>
+
+<h3 id="53-摩尔热容">5.3 摩尔热容</h3>
+
+<p><strong>定理（能均分定理）</strong>：出于平衡态、温度为$T$的理想气体，有：</p>
+
+<ul>
+  <li>分子的每一个自由度对应的动能均值为$kT/2$</li>
+  <li>分子的每一个振动自由度的弹性势能为$kT/2$</li>
+</ul>
+
+<p><strong>性质（分子自由度）</strong>：单原子分子（3），刚性双原子（3+2），非刚性双原子（3+2+1），刚性<strong>非线性</strong>多原子（3+3），非刚性多原子（3n）</p>
+
+<p><strong>定义（内能）</strong>：理想气体的内能是<strong>各分子能量之和</strong>（动能+势能）</p>
+
+<p><strong>定义（摩尔内能）</strong>：$U_m=\dfrac{U}{\nu}$</p>
+
+<p><strong>推论1</strong>：$U_m=\dfrac{1}{2}RT(t+r+2s)$</p>
+
+<p><strong>推论2（摩尔等压热容）</strong>：$C_{V,m}=\dfrac{dU_m}{dT}=\dfrac{1}{2}R(t+r+2s)$</p>
+
+<p><strong>推论3（摩尔等体热容）</strong>：$C_{p,m}=C_{V,m}+R$</p>
+
+<h3 id="54-热力学第一定律的应用">5.4 热力学第一定律的应用</h3>
+
+<p>绝热指数$\gamma=\dfrac{C_p}{C_V}$</p>
+
+<p>绝热过程$A=\dfrac{p_1V_1-p_2V_2}{\gamma-1}$</p>
+
+<p>（写不完了，真写不完了，再写明天高代人没了）</p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2021-06-15T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2021/06/15/advance_algebra_miss.html">直击！高代奶人现场！</a></div><div class="next"><span>下篇</span><a href="/2021/07/30/tape_chat.html">如何从Tape获取提问箱信息</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小闰"><meta itemprop="url" content="/"><meta itemprop="description" content="慢慢来，不要怕。点心总是会有的。"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© 小闰的甜品站 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

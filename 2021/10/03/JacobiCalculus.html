@@ -1,0 +1,1177 @@
+<!DOCTYPE html><html lang="zh">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Jacobi矩阵与多元函数微分 - 小闰的甜品站</title>
+
+<meta name="description" content="看得出来复旦版的课本尝试着使用更加简单的方法把数学分析的内容介绍给读者，从两个变量来介绍多元函数微积分不失为一种策略。虽说从二维到$n$维不会产生本质上的困难，但是始终停留在二维也让许多描述受到了限制。我们需要一些更为深入的方法论，让我们能更深一步地观察函数的微分是怎么回事。为什么课本上一会儿这样表述，一会儿又那...">
+<link rel="canonical" href="http://localhost:4000/2021/10/03/JacobiCalculus.html"><link rel="alternate" type="application/rss+xml" title="小闰的甜品站" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Your Site Description
+" href="/">小闰的甜品站</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>Jacobi矩阵与多元函数微分</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/YHanchao/yhanchao.github.io/tree/master/_posts/2021-10-03-JacobiCalculus.md">
+            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="Jacobi矩阵与多元函数微分"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2021年 10月03日</span>
+            </li></ul></div><meta itemprop="author" content="小闰"/><meta itemprop="datePublished" content="2021-10-03T00:00:00+08:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p>看得出来复旦版的课本尝试着使用更加简单的方法把数学分析的内容介绍给读者，从两个变量来介绍多元函数微积分不失为一种策略。虽说从二维到$n$维不会产生本质上的困难，但是始终停留在二维也让许多描述受到了限制。</p>
+
+<p>我们需要一些更为深入的方法论，让我们能更深一步地观察函数的微分是怎么回事。为什么课本上一会儿这样表述，一会儿又那样表述，似乎中间缺少了一些环节。这种想法是写这份文档的动机，也是我想了解的一些东西。</p>
+
+<hr />
+
+<p>举个简单的例子，复合函数本质上是映射的复合，但是仔细去看，它们似乎并不是简单的$\mathbb{R}^2\to\mathbb{R}$映射。比如$u=f(x,y)$，其中$x=x(s,t)$，$y=y(s,t)$，这实际上复合函数$u=f\circ\bm{g}$，其中
+\(\begin{aligned}
+    \bm{g}:\quad\mathbb{R}^2&amp;\to\mathbb{R}^2\\
+    (s,t)&amp;\mapsto(x,y)\end{aligned}\) \(\begin{aligned}
+    f:\quad\mathbb{R}^2&amp;\to\mathbb{R}\\
+    (x,y)&amp;\mapsto u\end{aligned}\)
+类似这样的复合可以一直进行下去，不过这样的话我们不妨来看看有限维之间的映射的微分有没有一个共同的表达，倘若有的话，可不可以进一步看一看复合函数的微分与这个表达有没有什么关联？</p>
+
+<p>幸运的是，确实有这样的刻画方式，那就是<strong>雅可比（Jacobi）矩阵</strong>。这个矩阵的构造格外优雅：它用一个简单的构造，完美地概括了多元函数的微分（当然还有复合函数！）。</p>
+
+<p>那么这份文档将会以Jacobi矩阵为核心，从这个视角来看多元函数的微分。</p>
+
+<p>本文主要参考常庚哲与史济怀先生的《数学分析教程》，在其中附加了一些自己的想法。</p>
+
+<p>本文档有PDF格式，请点击这里查看<a href="https://yan-blog.oss-cn-beijing.aliyuncs.com/files/Jacobi%E7%9F%A9%E9%98%B5%E4%B8%8E%E5%A4%9A%E5%85%83%E5%87%BD%E6%95%B0%E5%BE%AE%E5%88%86.pdf">下载</a></p>
+
+<h1 id="向量值函数与连续映射">向量值函数与连续映射</h1>
+
+<p>在介绍Jacobi矩阵之前，我们先来简要推广一下多变量函数的概念，即从$\mathbb{R}^n$到$\mathbb{R}^m$的映射：</p>
+
+\[\begin{aligned}
+    \bm{f}:\quad\mathbb{R}^n&amp;\to\mathbb{R}^m\\
+    \bm{x}&amp;\mapsto\bm{y}\end{aligned}\]
+
+<p>这里$\bm{f}$用粗体主要是为了突出这个映射最终会得到另外一组$m$维的向量，其余和映射的概念无二。事实上这里就相当于原先的$m$个函数
+\(\begin{cases}
+    y_1=f_1(x_1,x_2,\ldots,x_n)\\
+    y_2=f_2(x_1,x_2,\ldots,x_n)\\
+    \vdots\\
+    y_m=f_m(x_1,x_2,\ldots,x_n)\\
+    \end{cases}\)
+如果把$\bm{f}$写为$\bm{f}=(f_1,f_2,\ldots,f_m)$的形式，就可以类似向量一样称$f_i$为分量函数。根据这一定义，我们可以给出和函数相关的一系列定义与定理：</p>
+
+<p><strong>定义 1</strong> (极限). 设$D\subset \mathbb{R}^n$，$\bm{f}:D\to\mathbb{R}^m$，设$\bm{a}\in D’$，$\bm{p}\in \mathbb{R}^m$。若$\forall\varepsilon$，$\exists\delta&gt;0$，使得$\forall \bm{x}\in D$，且$0\leqslant||\bm{x}-\bm{a}||\leqslant\delta$，有$||\bm{f}-\bm{p}||&lt;\varepsilon$，则称映射$\bm{f}$在点$\bm{a}$处有极限$\bm{p}$，记作
+\(\lim_{\bm{x}\to\bm{a}}\bm{f}(\bm{x})=\bm{p}\)</p>
+
+<p>同样函数极限可以使用Cauchy收敛原理、按分量收敛进行刻画，只不过这里按分量收敛需要首先转化为每个分量函数收敛而已。函数收敛的性质依然成立，比如线性性、唯一性等等，这里不再罗列。</p>
+
+<p><strong>定义 2</strong> (连续映射). 设$D\subset \mathbb{R}^n$，$\bm{f}:D\to\mathbb{R}^m$，设$\bm{a}\in D$。若$\forall\varepsilon$，$\exists\delta&gt;0$，使得$\forall \bm{x}\in D\cap B_\delta(\bm{a})$，有$\bm{f}(\bm{x})\in B_\varepsilon(f(\bm{a}))$，则称$\bm{f}$在$\bm{a}$点连续。若$\bm{f}$在$D$中每一点都连续，则称$\bm{f}$在$D$上连续。</p>
+
+<p>下面我们来看几个函数连续的性质与判定，其中复旦版没有的几个定理会给出证明（或证明的思路，如果结论看上去比较明显的话），只需要取$m=1$就可以直接应用到曾经我们熟悉的那些函数上。下面的定理其实都没有独有的名字，不过为了一眼能看到定理的大概内容，就擅自起了一些可能不太合适的名字。</p>
+
+<p>下面为了打字方便，在不至于造成混淆的前提下就不使用黑体（或黑板体）了</p>
+
+<p><strong>定理 1</strong> (开集映射). 设$D$是$R^n$中的开集，$f:D\to R^m$，则$f$在$D$上连续的<strong>充分必要条件</strong>是：对于$R^m$中的<strong>任意</strong>开集$G$，$f^{-1}(G)$都是$R^n$中的开集，其中
+\(f^{-1}(G)=\{x\in D: f(x)\in G\}\)</p>
+
+<p><strong>证明</strong>：</p>
+
+<p>必要性。设$f$在$D$上连续，任取$R^m$中的开集$G$，只需说明$f^{-1}(G)$是开集。如果$f^{-1}(G)=\varnothing$，则它显然是开集，下面来看不为空集的情况。取$x_0\in f^{-1}(G)$，则$f(x_0)\in G$，由于$G$是开集，故$\exists \varepsilon$，使得$B_\varepsilon(f(x_0))\subset G$，则由连续性，$\exists\delta$，使得$\forall x\in B_\delta(x_0)$，有$f(x)\subset B_\varepsilon(f(x_0))$，即$B_\delta(x_0)\subset G$。由于$G$是任取的，故必要性得到证明。</p>
+
+<p>充分性。任取$x_0\in D$，对于充分小的$\varepsilon$，记$G=B_\varepsilon(f(x_0))$，则$G$是开集，进而$f^{-1}(G)$是开集。由$x_0\in f^{-1}(G)$，知$\exists\delta$，使得$B_\delta(x_0)\subset f^{-1}(G)$，进而由连续的定义知$f$连续。（稍微有一点跳步，不过应该还算好理解） ◻</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td><strong>定义 3</strong> (一致连续). 若$\forall \varepsilon&gt;0$，存在$\delta&gt;0$，使得$\forall x,y\in D$且$</td>
+      <td> </td>
+      <td>x-y</td>
+      <td> </td>
+      <td>&lt;\delta$时，均有$</td>
+      <td> </td>
+      <td>f(x)-f(y)</td>
+      <td> </td>
+      <td>&lt;\varepsilon$成立，则称映射$f$在$D$上一致连续。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>类似地我们还有如下结论：</p>
+
+<ol>
+  <li>
+    <p>映射$\bm{f}$在$D$上一致连续当且仅当每一个分量函数$f$在$D$上一致连续</p>
+  </li>
+  <li>
+    <p>设$D\subset R^n$，$f:D\to R^m$是$D$上的连续映射。如果$D$是紧致集，则$f$在$D$上一致连续</p>
+  </li>
+  <li>
+    <p>设$D\subset R^n$，$f:D\to R^m$在$D$上连续。如果$D$是紧致集，则$f(D)$是$R^m$上的紧致集</p>
+  </li>
+</ol>
+
+<p>不过，还有另外一个很有意思的定理，这个定理把连续和连通集联系在了一起，在$f:R^n\to R$的情况下这条定理为证明<strong>介值定理</strong>提供了证明的前提条件。下面我们先来看$f:R^n\to R$的情况，之后到$R\to R^m$只需要将前面的步骤做明显的改动照抄即可。</p>
+
+<p><strong>定理 2</strong> (连通集映射). 设$D\subset R^n$是一个连通集，$f:D\to R$是连续的，则$f(D)$是$R$中的连通集。</p>
+
+<p><em>Proof.</em> 设$f(D)=A + B$，其中$A$，$B$均不为空集，那么就有
+\(D=f^{-1}(A) + f^{-1}(B)\)
+其中$f^{-1}(A)$与$f^{-1}(B)$显然非空不相交。由$D$的连通性可知其中至少有一个集合包含着另一个的聚点，不妨设$f^{-1}(A)\cap f^{-1}{}’(B)\neq\varnothing$，也就是说$f^{-1}(B)$中可以找到收敛点列${x_i}$，其极限点$x_0\in f^{-1}(A)$。再由函数的连续性知$f(x_i)\in B$而$f(x_0)\in A$，且
+\(\lim_{i\to \infty}f(x_i)=f(x_0)\)
+这样就证明了$A\cap B’\neq\varnothing$，故而$f(D)$是连通集。 ◻</p>
+
+<p>想补充一点，在$R$上的连通集实际上就是区间。事实上我们有</p>
+
+<p><strong>定理 3</strong> (一维空间中的连通集). 在$R$上，集合$E$连通，当且仅当$E$是区间</p>
+
+<p>下面是简单的证明思路：（必要性）如果$E$是连通集，只需要证<strong>任意</strong>$a,b$，均有$[a,b]\subset E$，对于这样的思路我们反证即可。假设$a&lt;c&lt;b$，且$c\notin E$，那么考虑区间
+\(A=\{x\in E:x&lt;c\},\quad B=\{x\in E:x&gt;c\}\)
+则无论哪一个集合都不会包含另一个集合的聚点<em>（为什么？）</em>，这样必要性得证。</p>
+
+<p>（充分性）思路上只需要按照定义验证即可，不过考虑到对$E$的分割是任意的，故而需要用到实数基本定理，比如构造闭区间套最终收敛到某个集合的聚点上，这样就能证明了。</p>
+
+<h1 id="jacobi矩阵与微分">Jacobi矩阵与微分</h1>
+
+<h2 id="jacobi矩阵引例">Jacobi矩阵引例</h2>
+
+<p>我们先来看简单一点的情况，即$f:R^n\to R$的微分形式。我们知道，如果$f$是可微的，那么$\forall h\in R^n$，有
+\(f(x_0+h)-f(x_0)=\sum_{i=1}^n\lambda_i h_i+o(||h||)\quad(||h||\to 0)\)
+其中$\lambda_i$是不依赖$h$的常数，且$\lambda_i=\frac{\partial f}{\partial x_i}$</p>
+
+<p>下面我们记
+\(\bm{J}f(\bm{x})=(\frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \ldots, \frac{\partial f}{\partial x_n})\)
+如果我们把$x$与$h$均写为<strong>列向量</strong>的形式，则
+\(f(\bm{x}_0+\bm{h})-f(\bm{x}_0)=\bm{J}f(\bm{x}_0)\bm{h}+o(||\bm{h}||)\quad(||\bm{h}||\to 0)\)</p>
+
+<h2 id="映射的微分">映射的微分</h2>
+
+<p>上面$\bm{J}f(\bm{x})$就是一个简单的Jacobi（雅可比）矩阵，它是$1\times n$的。在$f:R^n\to R$的意义下，这个符号也常常记为$\nabla f$，它叫做<strong>梯度</strong></p>
+
+<p>这一部分我们来看对于更加一般的函数映射，它的微分该如何定义，以及其对应的Jacobi矩阵表示。</p>
+
+<p>设开集$D\subset R^n$，$\bm{f}:D\to R^m$，记$\bm{f}=(f_1, f_2, \ldots f_m)$，下面我们为了方便表示写为列向量的形式，即
+\(\bm{f}(\bm{x})=\begin{bmatrix}
+    f_1(\bm{x})\\
+    f_2(\bm{x})\\
+    \vdots\\
+    f_m(\bm{x})
+    \end{bmatrix}\quad(\bm{x}\in D)\)</p>
+
+<p><strong>定义 4</strong>. 如果映射$\bm{f}$满足
+\(\bm{f}(\bm{x}_0+\bm{h})-\bm{f}(\bm{x}_0)=\bm{Ah}+\bm{r}(\bm{h})\)
+其中$\bm{A}$是一个$m\times n$的矩阵，其元素不依赖于$\bm{h}$，并且有
+\(\lim_{\bm{h}\to \bm{0}}\frac{||\bm{r}(\bm{h})||}{||\bm{h}||}=0\)
+则称$\bm{f}$在$\bm{x}_0$处可微，称$\bm{Ah}$是$f$在$\bm{x}_0$处的微分，记作
+\(\text{d}f(x_0)=Ah\)</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>在这段定义中，需要注意两个事情。其一是$r(h)$，这里这个$r(h)$实际上是$m\times 1$的矩阵，而$h$是$n\times 1$的，所以这里不能像原本那样直接写出$o(</td>
+      <td> </td>
+      <td>h</td>
+      <td> </td>
+      <td>)$；其二则注意微分是一个线性的表达式，它不只是一个导数，其中还包含着一个小的增量，可以认为映射的增量主要是另一个映射$A$作用在$h$上的结果。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>对于矩阵$A$，如果从分量函数的角度来考察的话，不难发现实际上有
+\(\bm{A}=\begin{bmatrix}
+    \frac{\partial f_1(\bm{x}_0)}{x_1}&amp;\ldots&amp;\frac{\partial f_1(\bm{x}_0)}{x_n}\\
+    \vdots&amp; &amp;\vdots\\
+    \frac{\partial f_m(\bm{x}_0)}{x_1}&amp;\ldots&amp;\frac{\partial f_m(\bm{x}_0)}{x_n}
+    \end{bmatrix}\)
+我们记$\bm{Jf}(\bm{x}_0)=\bm{A}$，这就是$\bm{f}$的Jacobi矩阵。于是自然就有$\text{d}\bm{f}(\bm{x}_0)=\bm{Jf}(\bm{x}_0)\bm{h}$</p>
+
+<p>类似地我们也可以通过某点$x_0$的某个邻域内Jacobi矩阵存在且各分量在$x_0$连续来说明函数在这一点可微。</p>
+
+<p>这一部分我们只是用这一个矩阵来刻画函数的微分形式，看上去是非常简单直观的，下面我们将看到复合函数的微分实际上就是Jacobi矩阵相乘——<strong>这一点颇像线性变换的复合</strong>！</p>
+
+<h1 id="复合函数求导">复合函数求导</h1>
+
+<p>这一部分来证明复合函数求导法则的定理，这段证明过程我个人认为非常漂亮，所以就全部写下来了。</p>
+
+<p><strong>定理 4</strong>. 设开集$D\subset R^n$，$g:D\to R^m$，$g$在$x_0\in D$可微；设$f$把包含$g(D)$的一个开集映射到$R^l$，且$f$在$g(x_0)$处可微，那么复合映射$f\circ g$在$x_0$可微，且
+\(J(f\circ g)(x_0)=Jf(g(x_0))Jg(x_0)\)</p>
+
+<p><em>Proof.</em> 令$y_0=g(x_0)$，$A=Jf(y_0)$，$B=Jg(x_0)$，则只需要证明
+\(\lim_{||h||\to 0}\frac{|| (f\circ g)(x_0+h) - (f\circ g)(x_0) - ABh||}{||h||}=0\)</p>
+
+<p>由题设，首先我们由$f$，$g$在$y_0$，$x_0$可微知： \(\begin{gathered}
+    g(x_0+h)-g(x_0)=Bh +u(h)\\
+    f(y_0+k)-f(y_0)=Ak + v(k)\end{gathered}\) 其中 \(\begin{gathered}
+    \lim_{||h||\to 0}\frac{||u(h)||}{||h||}=0\\
+    \lim_{||k||\to 0}\frac{||v(k)||}{||k||}=0\end{gathered}\)</p>
+
+<p>为了便于后面表示，我们记
+\(\frac{||u(h)||}{||h||}=\xi(h)\quad \frac{||v(k)||}{||k||}=\phi(k)\)</p>
+
+<p>对于给定的$h$，令$k=g(x_0+h)-g(x_0)$，则
+\(||k||\leqslant ||Bh||+||u(h)||\leqslant(||B||+\xi(h))||h||\)</p>
+
+<p>于是有 \(\begin{aligned}
+    &amp;|| (f\circ g)(x_0+h) - (f\circ g)(x_0) - ABh||\\
+    &amp;=|| f(g(x_0+h)) - f(g(x_0)) - ABh||\\
+    &amp;=|| f(y_0+k) - f(y_0) - ABh||\\
+    &amp;=||Ak +v(k) - ABh||=||A(k-Bh) + v(k)||\\
+    &amp;\leqslant||A||\times||u(h)||+\phi(k)||k||\\
+    &amp;\leqslant||A||\xi(h)||h||+\phi(k)(||B||+\xi(h))||h||\end{aligned}\)</p>
+
+<p>故而
+\(\frac{|| (f\circ g)(x_0+h) - (f\circ g)(x_0) - ABh||}{||h||}\leqslant||A||\xi(h)+(||B||+\xi(h))\phi(k)\)</p>
+
+<p>由此不难看出命题成立。 ◻</p>
+
+<p>在这个定理中，我们不妨设$g=(g_1,g_2,\ldots,g_m)$在$D$上可微，$f=(f_1,f_2,\ldots,f_l)$在$g(D)$上可微，再设
+\(\begin{gathered}
+    y_i=g_i(x_1,x_2,\ldots,x_n)\quad(i=1,2,\ldots,m)\\
+    z_j=f_j(y_1,y_2,\ldots,y_m)\quad(j=1,2,\ldots,l)\end{gathered}\)
+那么这个复合映射就可以表示为
+\(z_j=f_j(g_1(x_1,x_2,\ldots,x_n),\ldots,g_m(x_1,x_2,\ldots,x_n))\quad(j=1,2,\ldots,l)\)
+这时$z_j$对$x_i$求偏导可用矩阵表示为 \(\begin{bmatrix}
+    \frac{\partial z_1}{\partial x_1}&amp;\ldots&amp;\frac{\partial z_1}{\partial x_n}\\
+    \vdots&amp;&amp;\vdots\\
+    \frac{\partial z_l}{\partial x_1}&amp;\ldots&amp;\frac{\partial z_l}{\partial x_n}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \frac{\partial z_1}{\partial y_1}&amp;\ldots&amp;\frac{\partial z_1}{\partial y_m}\\
+    \vdots&amp;&amp;\vdots\\
+    \frac{\partial z_l}{\partial y_1}&amp;\ldots&amp;\frac{\partial z_l}{\partial y_m}
+    \end{bmatrix}
+    \begin{bmatrix}
+    \frac{\partial y_1}{\partial x_1}&amp;\ldots&amp;\frac{\partial y_1}{\partial x_n}\\
+    \vdots&amp;&amp;\vdots\\
+    \frac{\partial y_m}{\partial x_1}&amp;\ldots&amp;\frac{\partial y_m}{\partial x_n}
+    \end{bmatrix}\)</p>
+
+<p>对上面的这个定理指定$n=2,l=1$即为课本上最常见的那种形式。</p>
+
+<p>这里为什么要大费周章写如此繁复的内容来说清楚复合函数求导这个实际操作起来很容易的东西呢？主要有这么几个原因：其一是课本中的那种做法虽然是正确的，但是在实际操作中很容易漏掉某些项，尤其是对于$f(x(s,t),y(s,t),t)$这种函数而言表述尚且有些模糊，实际运算中很容易混淆；其二是用Jacobi矩阵可以清楚地看到每一步<strong>究竟是对谁做偏导</strong>，这一步实际上是为了看清楚究竟是从哪里到哪里的映射（这一点和前面有重叠，前面漏项的一个原因就是没看明白究竟是对谁求偏导）；其三则是Jacobi矩阵清晰地阐明了求偏导的中的链式法则；其四则是我对复旦版教材中不加解释直接引入Jacobi行列式的讲法不满意，Jacobi矩阵有其数学意义，作为微分的一部分可以表征增量的变化趋势，这一几何特征经常被用在控制机器人的运动上。复旦版教材单纯引入一个叫做Jacobi行列式的记号实在不令人满意，这样硬塞显得格外生硬。</p>
+
+<p>至于Jacobi行列式与隐函数我还没有看，所以这里就不写了，有机会再接着往下写吧。</p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2021-10-03T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2021/09/24/EuclidPoints.html">欧氏空间中点列的极限论</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小闰"><meta itemprop="url" content="/"><meta itemprop="description" content="慢慢来，不要怕。点心总是会有的。"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© 小闰的甜品站 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+
